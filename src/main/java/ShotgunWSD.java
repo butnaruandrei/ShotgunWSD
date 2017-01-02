@@ -2,6 +2,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import org.apache.commons.lang.ArrayUtils;
 import parsers.DatabaseParser;
 import parsers.DocumentParser;
 import parsers.FileParser;
@@ -81,7 +82,7 @@ class ShotgunWSD {
         ArrayList<ParsedDocument> documents = fileParser.parse();
 
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n);
             wsdRunner.run();
         }
     }

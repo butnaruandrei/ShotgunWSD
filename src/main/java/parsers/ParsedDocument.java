@@ -31,4 +31,8 @@ public class ParsedDocument {
     public String[] getWordPos() {
         return this.wordPos;
     }
+
+    public int wordsLength(){
+        return words.length;
+    }
 }
