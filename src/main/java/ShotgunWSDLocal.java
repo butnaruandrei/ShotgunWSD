@@ -1,3 +1,4 @@
+import configuration.WindowConfiguration;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -6,10 +7,13 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import relatedness.SenseEmbedding;
 import utils.POSUtils;
+import utils.SynsetUtils;
 import utils.WordUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Butnaru Andrei-Madalin.
@@ -22,19 +26,27 @@ public class ShotgunWSDLocal {
     private INDArray[] windowWordsSenseEmbeddings;
     private double[][] synsetPairScores;
 
+    private LinkedList<WindowConfiguration> windowSolutions;
+
     private String[] windowWords;
     private String[] windowWordsPOS;
+    private int numberConfigs, offset;
 
     /**
+     * @param offset         Global index of the first word in the context window
      * @param windowWords    An array of windows that we want to disambiguate
      * @param windowWordsPOS An array of POS Tags for each word in the windowWords param
+     * @param numberConfigs  Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDLocal(String[] windowWords, String[] windowWordsPOS) {
+    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs) {
+        this.offset = offset;
         this.windowWords = windowWords;
         this.windowWordsPOS = windowWordsPOS;
+        this.numberConfigs = numberConfigs;
 
         windowWordsSynsetStart = new int[windowWords.length];
         windowWordsSynsetLength = new int[windowWords.length];
+        windowSolutions = new LinkedList<>();
     }
 
     /**
@@ -121,20 +133,58 @@ public class ShotgunWSDLocal {
         double sim;
 
         synsetPairScores = new double[windowWordsSynsets.length][windowWordsSynsets.length];
-        for (int j = 0; j < windowWordsSynsets.length - 1; j++) {
+        for (int j = 0; j < windowWordsSynsets.length; j++) {
             for (int k = j; k < windowWordsSynsets.length; k++) {
-                if (synset2WordIndex[j] != synset2WordIndex[k]) {
-                    sim = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
-                    synsetPairScores[j][k] = sim;
-                    synsetPairScores[k][j] = sim;
-                } else {
-                    synsetPairScores[j][k] = 1;
-                }
+                sim = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+                synsetPairScores[j][k] = sim;
+                synsetPairScores[k][j] = sim;
             }
         }
     }
 
-    private void generateSynsetCombinations() {
+    private List<WindowConfiguration> generateSynsetCombinations() {
+        int wordIndex = 0;
 
+        generateSynsetCombinations(wordIndex, new int[windowWords.length]);
+
+        if(windowSolutions.size() == 0){
+            return null;
+        } else {
+            for(WindowConfiguration windowConfiguration: windowSolutions)
+                windowConfiguration.setGlobalIDS(offset, synset2WordIndex, windowWordsSynsetStart);
+
+            return windowSolutions;
+        }
+    }
+
+    // TODO write docs
+    private void generateSynsetCombinations(int wordIndex, int[] synsets){
+        double score;
+        int size;
+
+        for (int i = windowWordsSynsetStart[wordIndex]; i < windowWordsSynsetStart[wordIndex] + windowWordsSynsetLength[wordIndex]; i++) {
+            synsets[wordIndex] = i;
+
+            if(wordIndex < windowWords.length - 1) {
+                generateSynsetCombinations(wordIndex + 1, synsets);
+            } else {
+                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
+
+                size = windowSolutions.size();
+                if(size >= this.numberConfigs) {
+                    if(score >= windowSolutions.get(0).getScore()){
+                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), score));
+                        windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+                        windowSolutions.pollFirst();
+                    }
+                } else {
+                    windowSolutions.push(new WindowConfiguration(synsets.clone(), score));
+
+                    if(size == this.numberConfigs - 1) {
+                        windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+                    }
+                }
+            }
+        }
     }
 }

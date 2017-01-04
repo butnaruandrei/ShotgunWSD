@@ -17,6 +17,9 @@ public class ShotgunWSDRunner {
     public static WordNetDatabase wnDatabase;
 
     private int windowSize;
+    private int numberConfigs;
+
+    // TODO check if we can remove this threshold
     private long maxSynsetCombinationNumber = 1000000000; // The maximum number of possible synset combinations that a context window can have
 
     public static void loadWordEmbeddings(String wePath, String weType) {
@@ -44,12 +47,14 @@ public class ShotgunWSDRunner {
 
     /**
      *
-     * @param document The document that we want to desambiguate
-     * @param windowSize Length of the context windows
+     * @param document      The document that we want to desambiguate
+     * @param windowSize    Length of the context windows
+     * @param numberConfigs Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDRunner(ParsedDocument document, int windowSize) {
+    public ShotgunWSDRunner(ParsedDocument document, int windowSize, int numberConfigs) {
         this.document = document;
         this.windowSize = windowSize;
+        this.numberConfigs = numberConfigs;
     }
 
     public void run() {
@@ -71,7 +76,7 @@ public class ShotgunWSDRunner {
                 combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
             }
 
-            ShotgunWSDLocal localWSD = new ShotgunWSDLocal(windowWords, windowWordsPOS);
+            ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs);
             localWSD.run(wnDatabase, wordVectors);
 
 

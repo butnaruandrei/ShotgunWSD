@@ -4,11 +4,9 @@ import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 import edu.stanford.nlp.simple.Sentence;
-import net.didion.jwnl.data.Word;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by Butnaru Andrei-Madalin.

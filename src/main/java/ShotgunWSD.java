@@ -82,7 +82,7 @@ class ShotgunWSD {
         ArrayList<ParsedDocument> documents = fileParser.parse();
 
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k);
             wsdRunner.run();
         }
     }
