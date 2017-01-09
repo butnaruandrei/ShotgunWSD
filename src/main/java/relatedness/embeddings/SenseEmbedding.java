@@ -1,10 +1,14 @@
-package relatedness;
+package relatedness.embeddings;
 
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
 import org.apache.commons.lang.ArrayUtils;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
-import utils.MathUtil;
+import relatedness.embeddings.sense.bags.AdjectiveSenseBag;
+import relatedness.embeddings.sense.bags.AdverbSenseBag;
+import relatedness.embeddings.sense.bags.NounSenseBag;
+import relatedness.embeddings.sense.bags.VerbSenseBag;
+import relatedness.embeddings.sense.computations.SenseComputation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +27,7 @@ public class SenseEmbedding {
      * @param word The word ...
      * @return The sense embedding of a synset
      */
-    public static double[] getSenseEmbedding(WordVectors wordVector, Synset synset, String word) {
+    public static double[] getSenseEmbedding(WordVectors wordVector, Synset synset, String word, SenseComputation senseComputation) {
         if(wordEmbeddings.containsKey(synset)){
             return ArrayUtils.toPrimitive(wordEmbeddings.get(synset));
         }
@@ -49,7 +53,7 @@ public class SenseEmbedding {
             }
         }
 
-        senseEmbedding = computeGeometricMedian(senseEmbeddings);
+        senseEmbedding = senseComputation.compute(senseEmbeddings);
 
         tmpSenseEmbedding = new Double[senseEmbedding.length];
         for (int i = 0; i < tmpSenseEmbedding.length; i++) {
@@ -60,44 +64,6 @@ public class SenseEmbedding {
         return senseEmbedding;
     }
 
-    /**
-     * Computes the Geometric Median of a given array of word embeddings
-     * @param senseEmbeddings Array of Word Embeddings
-     * @return The vector that represents the geometric median of the given array
-     */
-    private static double[] computeGeometricMedian(ArrayList<Double[]> senseEmbeddings) {
-        Double[] senseEmbedding = new Double[300];
-        Double[] sum1;
-        double sum2;
-
-        int iterations = 10;
-        double norm;
-
-        for (int i = 0; i < 300; i++) {
-            senseEmbedding[i] = 0d;
-        }
-
-        for (int i = 0; i < iterations; i++) {
-            sum1 = new Double[300]; sum2 = 0;
-
-            for (int j = 0; j < 300; j++) {
-                sum1[j] = 0d;
-            }
-
-            for(Double[] tmpSenseEmbedding : senseEmbeddings) {
-                // this is x
-                norm = MathUtil.computeNorm(tmpSenseEmbedding, senseEmbedding);
-
-                sum1 = MathUtil.sumVectors(sum1, MathUtil.divideVectors(tmpSenseEmbedding, norm));
-                sum2 += 1 / norm;
-            }
-
-            senseEmbedding = MathUtil.divideVectors(sum1, sum2);
-        }
-
-        return ArrayUtils.toPrimitive(senseEmbedding);
-    }
-
     private static String[] getSenseBag(Synset synset, String word) {
         if(synset == null)
             return new String[0];
@@ -105,15 +71,15 @@ public class SenseEmbedding {
         SynsetType pos = synset.getType();
 
         if(pos == SynsetType.NOUN) {
-            return NounRelatedness.getSenseBag(synset);
+            return NounSenseBag.getSenseBag(synset);
         } else if (pos == SynsetType.VERB) {
-            return VerbRelatedness.getSenseBag(synset);
+            return VerbSenseBag.getSenseBag(synset);
         } else if(pos == SynsetType.ADJECTIVE) {
-            return AdjectiveRelatedness.getSenseBag(synset, word);
+            return AdjectiveSenseBag.getSenseBag(synset, word);
         } else if(pos == SynsetType.ADJECTIVE_SATELLITE) {
-            return AdjectiveRelatedness.getSenseBag(synset, word);
+            return AdjectiveSenseBag.getSenseBag(synset, word);
         } else if(pos == SynsetType.ADVERB) {
-            return AdverbRelatedness.getSenseBag(synset, word);
+            return AdverbSenseBag.getSenseBag(synset, word);
         }
 
         return new String[0];

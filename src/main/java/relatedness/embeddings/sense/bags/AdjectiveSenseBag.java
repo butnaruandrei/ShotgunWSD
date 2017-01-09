@@ -1,11 +1,11 @@
-package relatedness;
+package relatedness.embeddings.sense.bags;
 
 import edu.smu.tspell.wordnet.*;
 
 /**
  * Created by Butnaru Andrei-Madalin.
  */
-public class AdjectiveRelatedness extends SynsetRelatedness {
+public class AdjectiveSenseBag extends SynsetSenseBag {
     public static String[] getSenseBag(Synset synset, String word) {
         String senseBag = "";
 

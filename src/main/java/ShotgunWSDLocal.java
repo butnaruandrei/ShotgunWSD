@@ -1,16 +1,12 @@
 import configuration.WindowConfiguration;
+import configuration.operations.ConfigurationOperation;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
-import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.ops.transforms.Transforms;
-import relatedness.SenseEmbedding;
+import relatedness.SynsetRelatedness;
 import utils.POSUtils;
 import utils.SynsetUtils;
 import utils.WordUtils;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -22,10 +18,9 @@ import java.util.List;
 public class ShotgunWSDLocal {
     private int[] windowWordsSynsetStart;
     private int[] windowWordsSynsetLength;
-    private int[] synset2WordIndex;
-    private Synset[] windowWordsSynsets;
-    private INDArray[] windowWordsSenseEmbeddings;
     private double[][] synsetPairScores;
+    protected int[] synset2WordIndex;
+    protected Synset[] windowWordsSynsets;
 
     private LinkedList<WindowConfiguration> windowSolutions;
 
@@ -33,17 +28,23 @@ public class ShotgunWSDLocal {
     private String[] windowWordsPOS;
     private int numberConfigs, offset;
 
+    private ConfigurationOperation configurationOperation;
+    private SynsetRelatedness synsetRelatedness;
+
     /**
      * @param offset         Global index of the first word in the context window
      * @param windowWords    An array of windows that we want to disambiguate
      * @param windowWordsPOS An array of POS Tags for each word in the windowWords param
      * @param numberConfigs  Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs) {
+    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs, ConfigurationOperation configurationOperation, SynsetRelatedness synsetRelatedness) {
         this.offset = offset;
         this.windowWords = windowWords;
         this.windowWordsPOS = windowWordsPOS;
         this.numberConfigs = numberConfigs;
+
+        this.configurationOperation = configurationOperation;
+        this.synsetRelatedness = synsetRelatedness;
 
         windowWordsSynsetStart = new int[windowWords.length];
         windowWordsSynsetLength = new int[windowWords.length];
@@ -55,13 +56,44 @@ public class ShotgunWSDLocal {
      *
      * @param wnDatabase WordNet Database
      */
-    public void run(WordNetDatabase wnDatabase, WordVectors wordVectors) {
+    public void run(WordNetDatabase wnDatabase) {
         buildWindowSynsetsArray(wnDatabase);
-        buildWindowSynsetRepresentation();
-        computeWindowWordsSenseEmbeddings(wordVectors);
-        computeWordPairSynsetRelatedness();
+        buildSynsetMapping();
+        Object[] synsetRepresentations = synsetRelatedness.computeSynsetRepresentations(windowWordsSynsets, windowWords, synset2WordIndex);
+        computeWordPairSynsetRelatedness(synsetRepresentations);
 
         generateSynsetCombinations();
+    }
+
+    /**
+     * For each pair of synsets, compute the similarity between them.
+     */
+    public void computeWordPairSynsetRelatedness(Object[] synsetRepresentations) {
+        double sim;
+
+        synsetPairScores = new double[windowWordsSynsets.length][windowWordsSynsets.length];
+        for (int j = 0; j < windowWordsSynsets.length; j++) {
+            for (int k = j; k < windowWordsSynsets.length; k++) {
+                sim = synsetRelatedness.computeSimilarity(synsetRepresentations, k, j);
+                synsetPairScores[j][k] = sim;
+                synsetPairScores[k][j] = sim;
+            }
+        }
+    }
+
+    /**
+     * Build an array that stores, for each synset the word from the context window that represents.
+     */
+    protected void buildSynsetMapping() {
+        int lastIdx;
+        synset2WordIndex = new int[windowWordsSynsets.length];
+        for (int j = 0; j < windowWordsSynsetStart.length; j++) {
+            lastIdx = j + 1 == windowWordsSynsetStart.length ? windowWordsSynsets.length : windowWordsSynsetStart[j + 1];
+            for (int k = windowWordsSynsetStart[j]; k < lastIdx; k++) {
+                synset2WordIndex[k] = j;
+            }
+        }
+
     }
 
     /**
@@ -70,7 +102,7 @@ public class ShotgunWSDLocal {
      *
      * @param wnDatabase WordNet Database
      */
-    private void buildWindowSynsetsArray(WordNetDatabase wnDatabase) {
+    protected void buildWindowSynsetsArray(WordNetDatabase wnDatabase) {
         ArrayList<Synset> windowSynsets = new ArrayList<>();
 
         Synset[] tmpSynsets;
@@ -102,47 +134,6 @@ public class ShotgunWSDLocal {
         windowWordsSynsets = windowSynsets.toArray(windowWordsSynsets);
     }
 
-    /**
-     * Build an array that stores, for each synset the word from the context window that represents.
-     */
-    private void buildWindowSynsetRepresentation() {
-        int lastIdx;
-        synset2WordIndex = new int[windowWordsSynsets.length];
-        for (int j = 0; j < windowWordsSynsetStart.length; j++) {
-            lastIdx = j + 1 == windowWordsSynsetStart.length ? windowWordsSynsets.length : windowWordsSynsetStart[j + 1];
-            for (int k = windowWordsSynsetStart[j]; k < lastIdx; k++) {
-                synset2WordIndex[k] = j;
-            }
-        }
-
-    }
-
-    /**
-     * Generates the sense embedding for each synset of every word from the context window
-     */
-    private void computeWindowWordsSenseEmbeddings(WordVectors wordVectors) {
-        windowWordsSenseEmbeddings = new INDArray[windowWordsSynsets.length];
-        for (int k = 0; k < windowWordsSynsets.length; k++) {
-            windowWordsSenseEmbeddings[k] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, windowWordsSynsets[k], windowWords[synset2WordIndex[k]]));
-        }
-    }
-
-    /**
-     * For each pair of synsets, compute the similarity between them.
-     */
-    private void computeWordPairSynsetRelatedness() {
-        double sim;
-
-        synsetPairScores = new double[windowWordsSynsets.length][windowWordsSynsets.length];
-        for (int j = 0; j < windowWordsSynsets.length; j++) {
-            for (int k = j; k < windowWordsSynsets.length; k++) {
-                sim = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
-                synsetPairScores[j][k] = sim;
-                synsetPairScores[k][j] = sim;
-            }
-        }
-    }
-
     private void generateSynsetCombinations() {
         int wordIndex = 0;
 
@@ -167,7 +158,7 @@ public class ShotgunWSDLocal {
             if(wordIndex < windowWords.length - 1) {
                 generateSynsetCombinations(wordIndex + 1, synsets);
             } else {
-                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
+                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores, configurationOperation);
 
                 size = windowSolutions.size();
                 if(size >= this.numberConfigs) {

@@ -1,4 +1,4 @@
-package relatedness;
+package relatedness.embeddings.sense.bags;
 
 import edu.smu.tspell.wordnet.NounSynset;
 import edu.smu.tspell.wordnet.Synset;
@@ -6,7 +6,7 @@ import edu.smu.tspell.wordnet.Synset;
 /**
  * Created by Butnaru Andrei-Madalin.
  */
-public class NounRelatedness extends SynsetRelatedness {
+public class NounSenseBag extends SynsetSenseBag {
     public static String[] getSenseBag(Synset synset) {
         String senseBag = "";
 

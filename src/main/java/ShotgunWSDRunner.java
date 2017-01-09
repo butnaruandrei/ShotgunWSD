@@ -1,12 +1,11 @@
 import configuration.WindowConfiguration;
+import configuration.operations.ConfigurationOperation;
 import edu.smu.tspell.wordnet.WordNetDatabase;
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import parsers.ParsedDocument;
+import relatedness.SynsetRelatedness;
 import utils.SynsetUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -22,26 +21,11 @@ public class ShotgunWSDRunner {
     private int windowSize;
     private int numberConfigs;
 
+    private ConfigurationOperation configurationOperation;
+    private SynsetRelatedness synsetRelatedness;
+
     // TODO check if we can remove this threshold
     private long maxSynsetCombinationNumber = 1000000000; // The maximum number of possible synset combinations that a context window can have
-
-    public static void loadWordEmbeddings(String wePath, String weType) {
-        try {
-            switch (weType) {
-                case "Google":
-                    ShotgunWSDRunner.wordVectors = WordVectorSerializer.loadGoogleModel(new File(wePath), true);
-                    break;
-                case "Glove":
-                    ShotgunWSDRunner.wordVectors = WordVectorSerializer.loadTxtVectors(new File(wePath));
-                    break;
-                default:
-                    System.out.println("Word Embeddings type is invalid! " + weType + " is not a valid type. Please use Google or Glove model.");
-                    System.exit(0);
-            }
-        } catch (IOException e) {
-            System.out.println("Could not find Word Embeddings file in " + wePath);
-        }
-    }
 
     public static void loadWordNet(String wnDirectory) {
         System.setProperty("wordnet.database.dir", wnDirectory);
@@ -54,10 +38,13 @@ public class ShotgunWSDRunner {
      * @param windowSize    Length of the context windows
      * @param numberConfigs Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDRunner(ParsedDocument document, int windowSize, int numberConfigs) {
+    public ShotgunWSDRunner(ParsedDocument document, int windowSize, int numberConfigs, ConfigurationOperation configurationOperation, SynsetRelatedness synsetRelatedness) {
         this.document = document;
         this.windowSize = windowSize;
         this.numberConfigs = numberConfigs;
+
+        this.configurationOperation = configurationOperation;
+        this.synsetRelatedness = synsetRelatedness;
     }
 
     public void run() {
@@ -65,7 +52,6 @@ public class ShotgunWSDRunner {
 
         System.out.println("ok");
     }
-
 
     /**
      * TODO write docs
@@ -87,8 +73,8 @@ public class ShotgunWSDRunner {
                 combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
             }
 
-            ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs);
-            localWSD.run(wnDatabase, wordVectors);
+            ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, configurationOperation, synsetRelatedness);
+            localWSD.run(wnDatabase);
             windowSolutions = localWSD.getWindowSolutions();
 
             documentWindowSolutions.put(wordIndex, windowSolutions);

@@ -2,12 +2,15 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import org.apache.commons.lang.ArrayUtils;
+import configuration.operations.ConfigurationOperation;
+import configuration.operations.SumSquaredOperation;
 import parsers.DatabaseParser;
 import parsers.DocumentParser;
 import parsers.FileParser;
 import parsers.ParsedDocument;
-
+import relatedness.SynsetRelatedness;
+import relatedness.embeddings.WordEmbeddingRelatedness;
+import relatedness.embeddings.sense.computations.GeometricMedianComputation;
 import java.util.ArrayList;
 
 class ShotgunWSD {
@@ -48,6 +51,7 @@ class ShotgunWSD {
     private boolean help;
 
     public static void main(String[] args) {
+
         ShotgunWSD shotgunWSD = new ShotgunWSD();
 
         try {
@@ -62,7 +66,6 @@ class ShotgunWSD {
     }
 
     public void run() {
-        ShotgunWSDRunner.loadWordEmbeddings(wePath, weType);
         ShotgunWSDRunner.loadWordNet(wnDirectory);
 
         DocumentParser fileParser = null;
@@ -81,8 +84,11 @@ class ShotgunWSD {
 
         ArrayList<ParsedDocument> documents = fileParser.parse();
 
+        ConfigurationOperation configurationOperation = SumSquaredOperation.getInstance();
+        SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, GeometricMedianComputation.getInstance());
+
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k, configurationOperation, synsetRelatedness);
             wsdRunner.run();
         }
     }
