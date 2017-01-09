@@ -1,3 +1,4 @@
+import configuration.WindowConfiguration;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
@@ -7,6 +8,8 @@ import utils.SynsetUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Created by Butnaru Andrei-Madalin.
@@ -58,14 +61,22 @@ public class ShotgunWSDRunner {
     }
 
     public void run() {
-        computeWindows();
+        Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions = computeWindows();
+
+        System.out.println("ok");
     }
 
-    private void computeWindows(){
+
+    /**
+     * TODO write docs
+     */
+    private Hashtable<Integer, List<WindowConfiguration>> computeWindows(){
         String[] windowWords, windowWordsPOS;
         long combinations;
+        List<WindowConfiguration> windowSolutions;
+        Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions = new Hashtable<>();
 
-        for (int wordIndex = 0; wordIndex < document.wordsLength() - windowSize; wordIndex++) {
+        for (int wordIndex = 0; wordIndex <= document.wordsLength() - windowSize; wordIndex++) {
             windowWords = Arrays.copyOfRange(document.getWords(), wordIndex, wordIndex + windowSize);
             windowWordsPOS = Arrays.copyOfRange(document.getWordPos(), wordIndex, wordIndex + windowSize);
 
@@ -78,9 +89,12 @@ public class ShotgunWSDRunner {
 
             ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs);
             localWSD.run(wnDatabase, wordVectors);
+            windowSolutions = localWSD.getWindowSolutions();
 
-
+            documentWindowSolutions.put(wordIndex, windowSolutions);
         }
+
+        return documentWindowSolutions;
     }
 }
 

@@ -10,6 +10,7 @@ import utils.POSUtils;
 import utils.SynsetUtils;
 import utils.WordUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -142,18 +143,16 @@ public class ShotgunWSDLocal {
         }
     }
 
-    private List<WindowConfiguration> generateSynsetCombinations() {
+    private void generateSynsetCombinations() {
         int wordIndex = 0;
 
         generateSynsetCombinations(wordIndex, new int[windowWords.length]);
 
         if(windowSolutions.size() == 0){
-            return null;
+            windowSolutions = null;
         } else {
             for(WindowConfiguration windowConfiguration: windowSolutions)
                 windowConfiguration.setGlobalIDS(offset, synset2WordIndex, windowWordsSynsetStart);
-
-            return windowSolutions;
         }
     }
 
@@ -186,5 +185,9 @@ public class ShotgunWSDLocal {
                 }
             }
         }
+    }
+
+    public List<WindowConfiguration> getWindowSolutions(){
+        return windowSolutions;
     }
 }
