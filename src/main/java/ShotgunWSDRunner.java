@@ -58,7 +58,7 @@ public class ShotgunWSDRunner {
      */
     private Hashtable<Integer, List<WindowConfiguration>> computeWindows(){
         String[] windowWords, windowWordsPOS;
-        long combinations;
+        long combinations = 0;
         List<WindowConfiguration> windowSolutions;
         Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions = new Hashtable<>();
 
@@ -73,6 +73,7 @@ public class ShotgunWSDRunner {
                 combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
             }
 
+            System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations);
             ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, configurationOperation, synsetRelatedness);
             localWSD.run(wnDatabase);
             windowSolutions = localWSD.getWindowSolutions();

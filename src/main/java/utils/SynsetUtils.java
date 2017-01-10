@@ -1,7 +1,9 @@
 package utils;
 
 import configuration.operations.ConfigurationOperation;
+import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
+import edu.smu.tspell.wordnet.WordSense;
 
 /**
  * Created by Butnaru Andrei-Madalin.
@@ -32,6 +34,35 @@ public class SynsetUtils {
         }
 
         return combinations;
+    }
+
+    public static String getGloss(Synset synset) {
+        String[] examples;
+        String gloss;
+
+        gloss = synset.getDefinition();
+        examples = synset.getUsageExamples();
+        for (String example : examples) gloss += " " + example;
+
+        return gloss;
+    }
+
+    public static String getRelationGloss(Synset[] synsets) {
+        String gloss = "";
+
+        for(Synset synset : synsets)
+            gloss += " " + getGloss(synset);
+
+        return gloss;
+    }
+
+    public static String getRelationGloss(WordSense[] senses) {
+        String gloss = "";
+
+        for(WordSense sense : senses)
+            gloss += " " + getGloss(sense.getSynset());
+
+        return gloss;
     }
 
 }

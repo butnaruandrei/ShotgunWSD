@@ -4,6 +4,8 @@ import com.beust.jcommander.ParameterException;
 
 import configuration.operations.ConfigurationOperation;
 import configuration.operations.SumSquaredOperation;
+import edu.smu.tspell.wordnet.Synset;
+import edu.smu.tspell.wordnet.SynsetType;
 import parsers.DatabaseParser;
 import parsers.DocumentParser;
 import parsers.FileParser;
@@ -11,6 +13,9 @@ import parsers.ParsedDocument;
 import relatedness.SynsetRelatedness;
 import relatedness.embeddings.WordEmbeddingRelatedness;
 import relatedness.embeddings.sense.computations.GeometricMedianComputation;
+import relatedness.lesk.LeskRelatedness;
+import relatedness.lesk.similarities.AdjectiveSimilarity;
+
 import java.util.ArrayList;
 
 class ShotgunWSD {
@@ -51,7 +56,6 @@ class ShotgunWSD {
     private boolean help;
 
     public static void main(String[] args) {
-
         ShotgunWSD shotgunWSD = new ShotgunWSD();
 
         try {
@@ -67,7 +71,6 @@ class ShotgunWSD {
 
     public void run() {
         ShotgunWSDRunner.loadWordNet(wnDirectory);
-
         DocumentParser fileParser = null;
 
         switch (inputType) {
@@ -85,7 +88,9 @@ class ShotgunWSD {
         ArrayList<ParsedDocument> documents = fileParser.parse();
 
         ConfigurationOperation configurationOperation = SumSquaredOperation.getInstance();
-        SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, GeometricMedianComputation.getInstance());
+
+        // SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, GeometricMedianComputation.getInstance());
+        SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         for(ParsedDocument document : documents) {
             ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k, configurationOperation, synsetRelatedness);

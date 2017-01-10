@@ -36,7 +36,7 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
         return instance;
     }
 
-    public double computeSimilarity(Object[] synsetRepresentation, int k, int j){
+    public double computeSimilarity(Object[] synsetRepresentation, String[] windowWords, int[] synset2WordIndex, int k, int j){
         INDArray[] windowWordsSenseEmbeddings = (INDArray[])synsetRepresentation;
 
         return Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);

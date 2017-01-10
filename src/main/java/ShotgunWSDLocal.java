@@ -74,7 +74,7 @@ public class ShotgunWSDLocal {
         synsetPairScores = new double[windowWordsSynsets.length][windowWordsSynsets.length];
         for (int j = 0; j < windowWordsSynsets.length; j++) {
             for (int k = j; k < windowWordsSynsets.length; k++) {
-                sim = synsetRelatedness.computeSimilarity(synsetRepresentations, k, j);
+                sim = synsetRelatedness.computeSimilarity(synsetRepresentations, windowWords, synset2WordIndex, k, j);
                 synsetPairScores[j][k] = sim;
                 synsetPairScores[k][j] = sim;
             }
