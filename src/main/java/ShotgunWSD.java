@@ -93,7 +93,7 @@ class ShotgunWSD {
         SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k, configurationOperation, synsetRelatedness);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k, minSynsetCollisions, maxSynsetCollisions, configurationOperation, synsetRelatedness);
             wsdRunner.run();
         }
     }
