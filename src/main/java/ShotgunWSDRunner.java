@@ -374,21 +374,23 @@ public class ShotgunWSDRunner {
         String tmpSynsetIndex;
 
         for (int i = 0; i < document.wordsLength(); i++) {
-            tmpSynsetIndex = senses[i].split("-")[1];
+            if(senses[i] != null) {
+                tmpSynsetIndex = senses[i].split("-")[1];
 
-            if(wordSenseCount.containsKey(document.getWord(i) + "||" + document.getWordPos(i))){
-                tmpWordSenseCount = wordSenseCount.get(document.getWord(i) + "||" + document.getWordPos(i));
+                if (wordSenseCount.containsKey(document.getWord(i) + "||" + document.getWordPos(i))) {
+                    tmpWordSenseCount = wordSenseCount.get(document.getWord(i) + "||" + document.getWordPos(i));
 
-                if(tmpWordSenseCount.containsKey(tmpSynsetIndex)){
-                    tmpWordSenseCount.put(tmpSynsetIndex, tmpWordSenseCount.get(tmpSynsetIndex) + 1);
+                    if (tmpWordSenseCount.containsKey(tmpSynsetIndex)) {
+                        tmpWordSenseCount.put(tmpSynsetIndex, tmpWordSenseCount.get(tmpSynsetIndex) + 1);
+                    } else {
+                        tmpWordSenseCount.put(tmpSynsetIndex, 1);
+                    }
                 } else {
+                    tmpWordSenseCount = new HashMap<>();
                     tmpWordSenseCount.put(tmpSynsetIndex, 1);
-                }
-            } else {
-                tmpWordSenseCount = new HashMap<>();
-                tmpWordSenseCount.put(tmpSynsetIndex, 1);
 
-                wordSenseCount.put(document.getWord(i) + "||" + document.getWordPos(i), tmpWordSenseCount);
+                    wordSenseCount.put(document.getWord(i) + "||" + document.getWordPos(i), tmpWordSenseCount);
+                }
             }
         }
 

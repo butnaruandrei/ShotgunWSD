@@ -2,24 +2,17 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import configuration.WindowConfiguration;
 import configuration.operations.AddOperation;
-import configuration.operations.ConfigurationOperation;
 import configuration.operations.LogOperation;
 import configuration.operations.SumSquaredOperation;
 import edu.smu.tspell.wordnet.Synset;
-import edu.smu.tspell.wordnet.SynsetType;
-import parsers.DatabaseParser;
-import parsers.DocumentParser;
-import parsers.FileParser;
-import parsers.ParsedDocument;
+import parsers.*;
 import relatedness.SynsetRelatedness;
 import relatedness.embeddings.WordEmbeddingRelatedness;
 import relatedness.embeddings.sense.computations.AverageComputation;
 import relatedness.embeddings.sense.computations.GeometricMedianComputation;
 import relatedness.embeddings.sense.computations.SenseComputation;
 import relatedness.lesk.LeskRelatedness;
-import relatedness.lesk.similarities.AdjectiveSimilarity;
 import utils.SynsetUtils;
 import writers.DatabaseWriter;
 import writers.DocumentWriter;
@@ -95,11 +88,15 @@ class ShotgunWSD {
         DocumentWriter fileWriter = null;
 
         switch (inputType) {
-            case "dataset":
-                fileParser = new DatabaseParser(input);
+            case "dataset-semeval2007":
+                fileParser = new SemEval2007Parser(input);
+                break;
+            case "dataset-semcor":
+                fileParser = new SemCorParser(input);
                 break;
             case "text":
                 fileParser = new FileParser(input);
+                FileParser.wnDatabase = ShotgunWSDRunner.wnDatabase;
                 break;
             default:
                 System.out.println("Input type is invalid! " + inputType + " is not a valid type.");
@@ -128,8 +125,8 @@ class ShotgunWSD {
         else if(senseComputationMethod.equals("avg"))
             senseComputation = AverageComputation.getInstance();
 
-        SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
-        // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
+        // SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         if(configurationOperationName.equals("add2"))
             SynsetUtils.configurationOperation = SumSquaredOperation.getInstance();

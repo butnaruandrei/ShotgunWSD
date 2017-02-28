@@ -102,6 +102,10 @@ public class SynsetUtils {
         return gloss;
     }
 
+    public static String getDefinition(Synset synset){
+        return synset.getDefinition();
+    }
+
     public static String getRelationGloss(Synset[] synsets) {
         String gloss = "";
 

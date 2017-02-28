@@ -30,10 +30,14 @@ public class LeskRelatedness extends SynsetRelatedness {
     }
 
     public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
-        SynsetType pos1, pos2;
+        SynsetType pos1 = null, pos2 = null;
 
-        pos1 = synset1.getType();
-        pos2 = synset2.getType();
+        try {
+            pos1 = synset1.getType();
+            pos2 = synset2.getType();
+        } catch(Exception e){
+            System.out.printf("ok");
+        }
 
         if(pos1 == SynsetType.NOUN && pos2 == SynsetType.NOUN) {
             return NounSimilarity.similarity(synset1, synset2);

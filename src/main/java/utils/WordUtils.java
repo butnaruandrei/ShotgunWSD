@@ -75,4 +75,8 @@ public class WordUtils {
 
         return tmpSynsets;
     }
+
+    public static boolean inWordNet(WordNetDatabase wnDatabase, String word, SynsetType synsetType) {
+        return wnDatabase.getSynsets(word, synsetType).length > 0;
+    }
 }

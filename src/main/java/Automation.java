@@ -12,12 +12,12 @@ public class Automation {
     public static Hashtable<String, Hashtable<Integer, List<WindowConfiguration>>> documentWindowSolutions;
 
     public static void main(String[] args) {
-        Integer[] ns = {5, 6, 7, 8};
-        Integer[] cs = {5, 10, 15};
-        Integer[] ks = {1, 5, 10, 15, 20};
+        Integer[] ns = {5, 6};
+        Integer[] cs = {15};
+        Integer[] ks = {1};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
-        String[] configurationOperationNames = {"add2", "log", "add"};
-        String[] senseComputationMethods = {"geo", "avg"};
+        String[] configurationOperationNames = {"add"};
+        String[] senseComputationMethods = {"avg"};
 
 
         String[] shotgunArgs = new String[28];
@@ -78,10 +78,10 @@ public class Automation {
 
                                 File outputFolder = new File(shotgunArgs[23]);
 
-                                if(!outputFolder.exists()) {
+                                // if(!outputFolder.exists()) {
                                     System.out.println(outputFolder);
                                     ShotgunWSD.main(shotgunArgs);
-                                }
+                                // }
                             }
                         }
                     }

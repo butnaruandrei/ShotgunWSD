@@ -1,5 +1,7 @@
 package parsers;
 
+import edu.smu.tspell.wordnet.Synset;
+import edu.stanford.nlp.simple.Sentence;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,10 +14,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by Butnaru Andrei-Madalin.
  */
-public class DatabaseParser extends DocumentParser {
+public class SemCorParser extends DocumentParser {
     private String filePath;
     ArrayList<ParsedDocument> documents;
 
@@ -24,7 +29,7 @@ public class DatabaseParser extends DocumentParser {
 
     Document dataset;
 
-    public DatabaseParser(String filePath) {
+    public SemCorParser(String filePath) {
         this.filePath = filePath;
         this.documents = new ArrayList<>();
 
@@ -59,14 +64,21 @@ public class DatabaseParser extends DocumentParser {
         dataset.getDocumentElement().normalize();
 
         ArrayList<String> docWords, docWordsLemma, docWordsPOS, docWordsID;
-        String docID;
-        NodeList textList = dataset.getElementsByTagName("text");
+        String[] documentWords, documentPOS;
 
-        // For each document
-        for (int i = 0; i < textList.getLength(); i++) {
-            Node text = textList.item(i);
+        String docID, headID, headText, headLemma, headStem, headPOS;
+        String[] subHeadText;
+
+        Pattern p = Pattern.compile("d\\d+\\.s(\\d+)\\.t(\\d+)");
+        Matcher m;
+
+        NodeList contextList = dataset.getElementsByTagName("context");
+
+        // For each context
+        for (int i = 0; i < contextList.getLength(); i++) {
+            Node text = contextList.item(i);
             Element textElem = (Element) text;
-            docID = textElem.getAttribute("id");
+            docID = textElem.getAttribute("filename");
 
             NodeList sentenceList = text.getChildNodes();
 
@@ -79,29 +91,43 @@ public class DatabaseParser extends DocumentParser {
             for (int j = 0; j < sentenceList.getLength(); j++) {
                 Node sentence = sentenceList.item(j);
 
-
-                if ("sentence".equals(sentence.getNodeName())) {
-
+                if ("s".equals(sentence.getNodeName())) {
                     NodeList instanceList = sentence.getChildNodes();
 
                     // Get the words
                     for (int k = 0; k < instanceList.getLength(); k++) {
                         Node instance = instanceList.item(k);
 
-                        if ("instance".equals(instance.getNodeName())) {
+                        if ("wf".equals(instance.getNodeName())) {
                             Element inst = (Element) instance;
 
-                            docWords.add(inst.getAttribute("lemma").replace("_", " ").toLowerCase());
-                            docWordsPOS.add(fixPOS(inst.getAttribute("pos")));
-                            docWordsLemma.add(inst.getAttribute("lemma"));
-                            docWordsID.add(inst.getAttribute("id"));
-
+                            if(inst.getAttribute("cmd").equals("done")) {
+                                headText = inst.getTextContent();
+                                if(inst.getAttribute("lemma").equals("UNKNOWN") && (headText.contains("-") || headText.contains("/"))) {
+                                    subHeadText = headText.split("-");
+                                    for (int l = 0; l < subHeadText.length; l++) {
+                                        docWords.add(subHeadText[l]);
+                                        docWordsPOS.add("ALL");
+                                        docWordsLemma.add(new Sentence(subHeadText[l]).lemma(0));
+                                        docWordsID.add(inst.getAttribute("id"));
+                                    }
+                                } else {
+                                    // docWords.add(instance.getChildNodes().item(0).getNodeValue().toLowerCase());
+                                    docWords.add(inst.getAttribute("lemma").replace("_", " ").toLowerCase());
+                                    docWordsPOS.add(fixPOS(inst.getAttribute("pos")));
+                                    docWordsLemma.add(inst.getAttribute("lemma"));
+                                    docWordsID.add(inst.getAttribute("id"));
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            documents.add(new ParsedDocument(docID, docWords, docWordsPOS, docWordsLemma, docWordsID));
+            if(docWords.size() >= 1) {
+                documents.add(new ParsedDocument(docID, docWords, docWordsPOS, docWordsLemma, docWordsID));
+            }
+
         }
 
         return documents;
