@@ -28,7 +28,6 @@ public class ShotgunWSDLocal {
     private String[] windowWordsPOS;
     private int numberConfigs, offset;
 
-    private ConfigurationOperation configurationOperation;
     private SynsetRelatedness synsetRelatedness;
 
     /**
@@ -37,13 +36,12 @@ public class ShotgunWSDLocal {
      * @param windowWordsPOS An array of POS Tags for each word in the windowWords param
      * @param numberConfigs  Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs, ConfigurationOperation configurationOperation, SynsetRelatedness synsetRelatedness) {
+    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs, SynsetRelatedness synsetRelatedness) {
         this.offset = offset;
         this.windowWords = windowWords;
         this.windowWordsPOS = windowWordsPOS;
         this.numberConfigs = numberConfigs;
 
-        this.configurationOperation = configurationOperation;
         this.synsetRelatedness = synsetRelatedness;
 
         windowWordsSynsetStart = new int[windowWords.length];
@@ -151,6 +149,7 @@ public class ShotgunWSDLocal {
     private void generateSynsetCombinations(int wordIndex, int[] synsets){
         double score;
         int size;
+        Synset[] configurationSynsets;
 
         for (int i = windowWordsSynsetStart[wordIndex]; i < windowWordsSynsetStart[wordIndex] + windowWordsSynsetLength[wordIndex]; i++) {
             synsets[wordIndex] = i;
@@ -158,17 +157,18 @@ public class ShotgunWSDLocal {
             if(wordIndex < windowWords.length - 1) {
                 generateSynsetCombinations(wordIndex + 1, synsets);
             } else {
-                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores, configurationOperation);
+                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
+                configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
 
                 size = windowSolutions.size();
                 if(size >= this.numberConfigs) {
-                    if(score >= windowSolutions.get(0).getScore()){
-                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), score));
+                    if(score >= windowSolutions.get(windowSolutions.size() - 1).getScore()){
+                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, score));
                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
                         windowSolutions.pollFirst();
                     }
                 } else {
-                    windowSolutions.push(new WindowConfiguration(synsets.clone(), score));
+                    windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, score));
 
                     if(size == this.numberConfigs - 1) {
                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);

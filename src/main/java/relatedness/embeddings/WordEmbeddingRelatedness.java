@@ -42,6 +42,14 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
         return Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
     }
 
+    public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
+        INDArray[] senseEmbeddings = new INDArray[2];
+        senseEmbeddings[0] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset1, word1, senseComputation));
+        senseEmbeddings[1] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset2, word2, senseComputation));
+
+        return computeSimilarity(senseEmbeddings, null, null, 0, 1);
+    }
+
     /**
      * Generates the sense embedding for each synset of every word from the context window
      */

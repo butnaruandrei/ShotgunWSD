@@ -2,7 +2,10 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import configuration.WindowConfiguration;
+import configuration.operations.AddOperation;
 import configuration.operations.ConfigurationOperation;
+import configuration.operations.LogOperation;
 import configuration.operations.SumSquaredOperation;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
@@ -12,9 +15,15 @@ import parsers.FileParser;
 import parsers.ParsedDocument;
 import relatedness.SynsetRelatedness;
 import relatedness.embeddings.WordEmbeddingRelatedness;
+import relatedness.embeddings.sense.computations.AverageComputation;
 import relatedness.embeddings.sense.computations.GeometricMedianComputation;
+import relatedness.embeddings.sense.computations.SenseComputation;
 import relatedness.lesk.LeskRelatedness;
 import relatedness.lesk.similarities.AdjectiveSimilarity;
+import utils.SynsetUtils;
+import writers.DatabaseWriter;
+import writers.DocumentWriter;
+import writers.FileOutputWriter;
 
 import java.util.ArrayList;
 
@@ -46,11 +55,20 @@ class ShotgunWSD {
     @Parameter(names = "-inputType", description = "Type of the input file ( dataset / text )", required = true)
     private String inputType;
 
+    @Parameter(names = "-outputType", description = "Type of the input file ( dataset / text )", required = true)
+    private String outputType;
+
     @Parameter(names = "-input", description = "Input file path", required = true)
     private String input;
 
     @Parameter(names = "-output", description = "Output file path", required = true)
     private String output;
+
+    @Parameter(names = "-configurationOperationName", description = "Configuration Operation Name", required = true)
+    private String configurationOperationName;
+
+    @Parameter(names = "-senseComputationMethod", description = "Sense Computation Method", required = true)
+    private String senseComputationMethod;
 
     @Parameter(names = "--help", help = true)
     private boolean help;
@@ -69,9 +87,12 @@ class ShotgunWSD {
         }
     }
 
+
+    // Make as program attributes: synsetRelatedness, configurationOperation and senseComputation
     public void run() {
         ShotgunWSDRunner.loadWordNet(wnDirectory);
         DocumentParser fileParser = null;
+        DocumentWriter fileWriter = null;
 
         switch (inputType) {
             case "dataset":
@@ -85,17 +106,50 @@ class ShotgunWSD {
                 System.exit(0);
         }
 
+        switch (outputType) {
+            case "dataset":
+                fileWriter = new DatabaseWriter(output);
+                break;
+            case "text":
+                fileWriter = new FileOutputWriter(output);
+                break;
+            default:
+                System.out.println("Input type is invalid! " + inputType + " is not a valid type.");
+                System.exit(0);
+        }
+
+
+
         ArrayList<ParsedDocument> documents = fileParser.parse();
 
-        ConfigurationOperation configurationOperation = SumSquaredOperation.getInstance();
+        SenseComputation senseComputation = null;
+        if(senseComputationMethod.equals("geo"))
+            senseComputation = GeometricMedianComputation.getInstance();
+        else if(senseComputationMethod.equals("avg"))
+            senseComputation = AverageComputation.getInstance();
 
-        // SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, GeometricMedianComputation.getInstance());
-        SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
+        SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
+        if(configurationOperationName.equals("add2"))
+            SynsetUtils.configurationOperation = SumSquaredOperation.getInstance();
+        else if(configurationOperationName.equals("log"))
+            SynsetUtils.configurationOperation = LogOperation.getInstance();
+        else if(configurationOperationName.equals("add"))
+            SynsetUtils.configurationOperation = AddOperation.getInstance();
+
+        SynsetUtils.synsetRelatedness = synsetRelatedness;
+
+        Synset[] results;
+        long t = System.currentTimeMillis();
+        System.out.println("[START]");
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, k, minSynsetCollisions, maxSynsetCollisions, configurationOperation, synsetRelatedness);
-            wsdRunner.run();
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
+            results = wsdRunner.run();
+
+            fileWriter.write(document.getDocID(), results, document.getWordLemmas(), document.getWordsID());
         }
+        System.out.println("[STOP]" + (System.currentTimeMillis() - t));
     }
 
 

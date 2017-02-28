@@ -59,7 +59,7 @@ public class WordUtils {
      * @param synsetType POS Tag of the word
      * @return Array of Synsets
      */
-    private static Synset[] getSynsetsFromWord(WordNetDatabase wnDatabase, String word, SynsetType synsetType) {
+    public static Synset[] getSynsetsFromWord(WordNetDatabase wnDatabase, String word, SynsetType synsetType) {
         Synset[] tmpSynsets;
 
         if(synsetType == null)

@@ -16,7 +16,7 @@ public class POSUtils {
     /**
      * Transforms a String POS Tag to a int one
      */
-    private static int asInt(String pos) {
+    public static int asInt(String pos) {
         if(pos.equals("ALL"))
             return -1;
 

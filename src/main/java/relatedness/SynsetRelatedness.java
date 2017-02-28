@@ -33,6 +33,7 @@ public abstract class SynsetRelatedness {
 
     public abstract Object[] computeSynsetRepresentations(Synset[] windowWordsSynsets, String[] windowWords, int[] synset2WordIndex);
     public abstract double computeSimilarity(Object[] synsetRepresentations, String[] windowWords, int[] synset2WordIndex, int i, int j);
+    public abstract double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2);
 
     // This method eliminates stop words and removes apostrophe terminations of remaning words.
     public static String[] eliminateStopWordsFromWordSet(String[] contextWords) {

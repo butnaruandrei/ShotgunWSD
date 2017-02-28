@@ -6,3 +6,5 @@ hs_err_pid*
 .idea
 ShotgunWSD.iml
 /resources/stanford-english-corenlp-2016-01-10-models.jar
+/src/main/java/Automation.java
+/src/main/java/EvaluateResults.java

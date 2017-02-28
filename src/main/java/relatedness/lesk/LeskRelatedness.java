@@ -25,22 +25,26 @@ public class LeskRelatedness extends SynsetRelatedness {
 
     public double computeSimilarity(Object[] synsetRepresentations, String[] windowWords, int[] synset2WordIndex, int i, int j){
         Synset[] synsets = (Synset[]) synsetRepresentations;
+
+        return computeSimilarity(synsets[i], windowWords[synset2WordIndex[i]], synsets[j], windowWords[synset2WordIndex[j]]);
+    }
+
+    public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
         SynsetType pos1, pos2;
 
-        pos1 = synsets[i].getType();
-        pos2 = synsets[j].getType();
+        pos1 = synset1.getType();
+        pos2 = synset2.getType();
 
         if(pos1 == SynsetType.NOUN && pos2 == SynsetType.NOUN) {
-            return NounSimilarity.similarity(synsets[i], synsets[j]);
+            return NounSimilarity.similarity(synset1, synset2);
         } else if(pos1 == SynsetType.VERB && pos2 == SynsetType.VERB) {
-            return VerbSimilarity.similarity(synsets[i], synsets[j]);
+            return VerbSimilarity.similarity(synset1, synset2);
         } else if(AdjectiveSimilarity.synsetTypeAdjective(pos1, pos2)) {
-            return AdjectiveSimilarity.similarity(synsets[i], windowWords[synset2WordIndex[i]], synsets[j], windowWords[synset2WordIndex[j]]);
+            return AdjectiveSimilarity.similarity(synset1, word1, synset2, word2);
         } else if(pos1 == SynsetType.ADVERB && pos2 == SynsetType.ADVERB) {
-            return AdverbSimilarity.similarity(synsets[i], windowWords[synset2WordIndex[i]], synsets[j], windowWords[synset2WordIndex[j]]);
+            return AdverbSimilarity.similarity(synset1, word1, synset2, word2);
         } else {
-            return SynsetSimilarity.similarity(synsets[i], synsets[j]);
+            return SynsetSimilarity.similarity(synset1, synset2);
         }
-
     }
 }
