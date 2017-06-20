@@ -39,7 +39,22 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
     public double computeSimilarity(Object[] synsetRepresentation, String[] windowWords, int[] synset2WordIndex, int k, int j){
         INDArray[] windowWordsSenseEmbeddings = (INDArray[])synsetRepresentation;
 
-        return Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+        double score = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+
+        if(Double.isNaN(score))
+            score = 0;
+
+        return score;
+    }
+
+    public double[] zeros(int size) {
+        double[] result = new double[size];
+
+        for (int i = 0; i < size; i++) {
+            result[i] = 0d;
+        }
+
+        return result;
     }
 
     public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){

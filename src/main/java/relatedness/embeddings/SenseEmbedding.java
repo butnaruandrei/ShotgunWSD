@@ -12,12 +12,14 @@ import relatedness.embeddings.sense.computations.SenseComputation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Butnaru Andrei-Madalin.
  */
 public class SenseEmbedding {
     public static HashMap<Synset, Double[]> wordEmbeddings = new HashMap<>();
+    public static HashSet<String> allWords = new HashSet<>();
 
     // TODO add docs
     /**
@@ -41,6 +43,8 @@ public class SenseEmbedding {
         // For each word in the sense bag, get the coresponding word embeddings and store them in an array
         for (String w : words) {
             if (w != null) {
+                allWords.add(w);
+
                 if (wordVector.hasWord(w)) {
                     tmpEmbedding = wordVector.getWordVector(w);
 
@@ -53,7 +57,14 @@ public class SenseEmbedding {
             }
         }
 
-        senseEmbedding = senseComputation.compute(senseEmbeddings);
+        if(senseEmbeddings.size() == 0) {
+            senseEmbedding = new double[300];
+            for (int i = 0; i < senseEmbedding.length; i++) {
+                senseEmbedding[i] = 0d;
+            }
+        } else {
+            senseEmbedding = senseComputation.compute(senseEmbeddings);
+        }
 
         tmpSenseEmbedding = new Double[senseEmbedding.length];
         for (int i = 0; i < tmpSenseEmbedding.length; i++) {

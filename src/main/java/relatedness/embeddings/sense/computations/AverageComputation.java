@@ -17,9 +17,11 @@ public class AverageComputation extends SenseComputation {
     }
 
     public double[] compute(ArrayList<Double[]> senseEmbeddings) {
-        double[] senseEmbedding = new double[300];
+        int len = senseEmbeddings.get(0).length;
 
-        for (int i = 0; i < 300; i++) {
+        double[] senseEmbedding = new double[len];
+
+        for (int i = 0; i < len; i++) {
             senseEmbedding[i] = 0;
         }
 

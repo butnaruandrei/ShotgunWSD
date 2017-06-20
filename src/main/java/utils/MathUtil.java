@@ -15,7 +15,7 @@ public class MathUtil {
     }
 
     public static Double[] sumVectors(Double[] x, Double[] y){
-        Double[] newVec = new Double[300];
+        Double[] newVec = new Double[x.length];
 
         for (int i = 0; i < x.length; i++) {
             newVec[i] = x[i] + y[i];
@@ -25,7 +25,7 @@ public class MathUtil {
     }
 
     public static Double[] divideVectors(Double[] x, double y){
-        Double[] newVec = new Double[300];
+        Double[] newVec = new Double[x.length];
 
         for (int i = 0; i < x.length; i++) {
             newVec[i] = x[i] / y;

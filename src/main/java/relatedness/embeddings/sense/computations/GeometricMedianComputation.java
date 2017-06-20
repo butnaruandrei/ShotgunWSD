@@ -25,21 +25,23 @@ public class GeometricMedianComputation extends SenseComputation {
      * @return The vector that represents the geometric median of the given array
      */
     public double[] compute(ArrayList<Double[]> senseEmbeddings) {
-        Double[] senseEmbedding = new Double[300];
+        int len = senseEmbeddings.get(0).length;
+
+        Double[] senseEmbedding = new Double[len];
         Double[] sum1;
         double sum2;
 
         int iterations = 10;
         double norm;
 
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < len; i++) {
             senseEmbedding[i] = 0d;
         }
 
         for (int i = 0; i < iterations; i++) {
-            sum1 = new Double[300]; sum2 = 0;
+            sum1 = new Double[len]; sum2 = 0;
 
-            for (int j = 0; j < 300; j++) {
+            for (int j = 0; j < len; j++) {
                 sum1[j] = 0d;
             }
 

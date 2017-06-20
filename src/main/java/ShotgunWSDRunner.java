@@ -64,7 +64,12 @@ public class ShotgunWSDRunner {
     public Synset[] run() {
         Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions;
 
-        documentWindowSolutions = computeWindows();
+        if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
+            documentWindowSolutions = Automation.clone(Automation.backupDocumentWindowSolutions.get(document.getDocID()));
+        } else {
+            documentWindowSolutions = computeWindows();
+            Automation.backupDocumentWindowSolutions.put(document.getDocID(), Automation.clone(documentWindowSolutions));
+        }
 
         mergeWindowSolutions(documentWindowSolutions);
 
@@ -201,8 +206,11 @@ public class ShotgunWSDRunner {
             tmpIndexedList = allWindows.stream().filter(w -> w.containsGlobalSense(keyStart)).collect(Collectors.toCollection(ArrayList::new));
             tmpIndexedList = extractWSDWindows(tmpIndexedList);
 
-
-            Collections.sort(tmpIndexedList, windowComparator);
+            try {
+                Collections.sort(tmpIndexedList, windowComparator);
+            } catch (Exception e) {
+                System.out.println("sda");
+            }
 
             for (WindowConfiguration wsd : tmpIndexedList) {
                 if (noOfWindows == numberOfVotes)
