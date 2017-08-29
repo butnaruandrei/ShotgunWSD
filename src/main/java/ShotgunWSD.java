@@ -5,6 +5,10 @@ import com.beust.jcommander.ParameterException;
 import configuration.operations.AddOperation;
 import configuration.operations.LogOperation;
 import configuration.operations.SumSquaredOperation;
+import configuration.weights.BaseWeight;
+import configuration.weights.DefaultWeight;
+import configuration.weights.ExponentialWeight;
+import configuration.weights.FractionalWeight;
 import edu.smu.tspell.wordnet.Synset;
 import parsers.*;
 import relatedness.SynsetRelatedness;
@@ -21,8 +25,11 @@ import writers.FileOutputWriter;
 import java.util.ArrayList;
 
 class ShotgunWSD {
-    @Parameter(names = "-n", description = "Length of the context windows", required = true)
-    private Integer n;
+    @Parameter(names = "-min_n", description = "Min length of the context windows", required = true)
+    private Integer min_n;
+
+    @Parameter(names = "-max_n", description = "Max lngth of the context windows", required = true)
+    private Integer max_n;
 
     @Parameter(names = "-k", description = "Number of sense configurations considered for the voting scheme", required = true)
     private Integer k;
@@ -135,13 +142,16 @@ class ShotgunWSD {
         else if(configurationOperationName.equals("add"))
             SynsetUtils.configurationOperation = AddOperation.getInstance();
 
+        BaseWeight weightMethod = new FractionalWeight();
+
         SynsetUtils.synsetRelatedness = synsetRelatedness;
+        SynsetUtils.weightMethod = weightMethod;
 
         Synset[] results;
         long t = System.currentTimeMillis();
         System.out.println("[START]");
         for(ParsedDocument document : documents) {
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
             results = wsdRunner.run();
 
             fileWriter.write(document.getDocID(), results, document.getWordLemmas(), document.getWordsID());

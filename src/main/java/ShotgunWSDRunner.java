@@ -24,7 +24,8 @@ public class ShotgunWSDRunner {
     public static WordVectors wordVectors;
     public static WordNetDatabase wnDatabase;
 
-    private int windowSize;
+    private int minWindowSize;
+    private int maxWindowSize;
     private int numberConfigs;
     private int numberOfVotes;
     private int minSynsetCollisions;
@@ -42,13 +43,15 @@ public class ShotgunWSDRunner {
 
     /**
      * @param document      The document that we want to desambiguate
-     * @param windowSize    Length of the context windows
+     * @param minWindowSize Min length of the context windows
+     * @param maxWindowSize Max length of the context windows
      * @param numberConfigs How many sense configurations are kept per context window
      * @param numberOfVotes Number of sense configurations considered for the voting scheme
      */
-    public ShotgunWSDRunner(ParsedDocument document, int windowSize, int numberConfigs, int numberOfVotes, int minSynsetCollisions, int maxSynsetCollisions, SynsetRelatedness synsetRelatedness) {
+    public ShotgunWSDRunner(ParsedDocument document, int minWindowSize, int maxWindowSize, int numberConfigs, int numberOfVotes, int minSynsetCollisions, int maxSynsetCollisions, SynsetRelatedness synsetRelatedness) {
         this.document = document;
-        this.windowSize = windowSize;
+        this.minWindowSize = minWindowSize;
+        this.maxWindowSize = maxWindowSize;
         this.numberConfigs = numberConfigs;
         this.numberOfVotes = numberOfVotes;
         this.minSynsetCollisions = minSynsetCollisions;
@@ -90,26 +93,36 @@ public class ShotgunWSDRunner {
     private Hashtable<Integer, List<WindowConfiguration>> computeWindows() {
         String[] windowWords, windowWordsPOS;
         long combinations = 0;
-        List<WindowConfiguration> windowSolutions;
+        List<WindowConfiguration> windowSolutions, joinedWindowSolutions;
         Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions = new Hashtable<>();
 
-        for (int wordIndex = 0; wordIndex <= document.wordsLength() - windowSize; wordIndex++) {
-            windowWords = Arrays.copyOfRange(document.getWords(), wordIndex, wordIndex + windowSize);
-            windowWordsPOS = Arrays.copyOfRange(document.getWordPos(), wordIndex, wordIndex + windowSize);
+        for (int windowSize = minWindowSize; windowSize <= maxWindowSize; windowSize++) {
+            for (int wordIndex = 0; wordIndex <= document.wordsLength() - windowSize; wordIndex++) {
+                windowWords = Arrays.copyOfRange(document.getWords(), wordIndex, wordIndex + windowSize);
+                windowWordsPOS = Arrays.copyOfRange(document.getWordPos(), wordIndex, wordIndex + windowSize);
 
-            combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
-            while (combinations > maxSynsetCombinationNumber) {
-                windowWords = Arrays.copyOfRange(windowWords, 0, windowWords.length - 2);
-                windowWordsPOS = Arrays.copyOfRange(windowWordsPOS, 0, windowWordsPOS.length - 2);
                 combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
+                while (combinations > maxSynsetCombinationNumber) {
+                    windowWords = Arrays.copyOfRange(windowWords, 0, windowWords.length - 2);
+                    windowWordsPOS = Arrays.copyOfRange(windowWordsPOS, 0, windowWordsPOS.length - 2);
+                    combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
+                }
+
+                System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations);
+                ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, synsetRelatedness);
+                localWSD.run(wnDatabase);
+                windowSolutions = localWSD.getWindowSolutions();
+
+                if(documentWindowSolutions.containsKey(wordIndex)) {
+                    joinedWindowSolutions = documentWindowSolutions.get(wordIndex);
+                    joinedWindowSolutions.addAll(windowSolutions);
+
+                    documentWindowSolutions.put(wordIndex, joinedWindowSolutions);
+                } else {
+                    documentWindowSolutions.put(wordIndex, windowSolutions);
+                }
+
             }
-
-            System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations);
-            ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, synsetRelatedness);
-            localWSD.run(wnDatabase);
-            windowSolutions = localWSD.getWindowSolutions();
-
-            documentWindowSolutions.put(wordIndex, windowSolutions);
         }
 
         return documentWindowSolutions;

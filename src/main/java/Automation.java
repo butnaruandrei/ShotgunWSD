@@ -15,11 +15,14 @@ public class Automation {
     public static HashMap<String, Hashtable<Integer, List<WindowConfiguration>>> backupDocumentWindowSolutions;
 
     public static void main(String[] args) {
-        Integer[] ns = {4, 5, 6, 7, 8};
+        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}};
+        // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
+        // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
         Integer[] cs = {10,15,20};
         Integer[] ks = {1,5,10,15,20};
-        // Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
-        Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4} };
+        Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
+        // Integer[][] minMaxSynsetCollisions = { {5, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5} };
+        // Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4} };
         // Integer[][] minMaxSynsetCollisions = { {1, 1} };
 //       String[] configurationOperationNames = {"add2", "log", "add"};
 //        String[] senseComputationMethods = {"avg", "geo"};
@@ -36,19 +39,19 @@ public class Automation {
                 "H:\\Senseval2-GN-CC840-vectors600.txt"
         };
 
-        String[] shotgunArgs = new String[28];
+        String[] shotgunArgs = new String[30];
 
         shotgunArgs[14] = "-wn";
-        // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7";
+        // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict2.1";
         shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7.1\\dict";
         shotgunArgs[16] = "-weType";
-        shotgunArgs[17] = "Glove";
+        shotgunArgs[17] = "Google";
         shotgunArgs[18] = "-we";
-        // shotgunArgs[19] = "H:\\GoogleNews-vectors-negative300.bin";
-        // shotgunArgs[19] = "H:\\glove.42B.300d.txt";
-        shotgunArgs[19] = "H:\\Senseval3-GN-CC840-vectors600.txt";
+        shotgunArgs[19] = "H:\\GoogleNews-vectors-negative300.bin";
+        // shotgunArgs[19] = "H:\\Senseval3-GN-CC840-vectors600.txt";
         shotgunArgs[20] = "-input";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval2007\\test\\eng-coarse-all-words.xml";
+        // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\dataset.semcor.lexsn.xml";
         shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\data\\dataset.semcor.lexsn.xml";
         shotgunArgs[22] = "-output";
         shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\Senseval3\\GN";
@@ -56,6 +59,7 @@ public class Automation {
         shotgunArgs[25] = "dataset-semcor";
         shotgunArgs[26] = "-outputType";
         shotgunArgs[27] = "dataset";
+
 
         shotgunArgs[10] = "-configurationOperationName";
         for (int m = 0; m < configurationOperationNames.length; m++) {
@@ -65,9 +69,11 @@ public class Automation {
             for (int n = 0; n < senseComputationMethods.length; n++) {
                 shotgunArgs[13] = senseComputationMethods[n];
 
-                shotgunArgs[0] = "-n";
+                shotgunArgs[0] = "-min_n";
+                shotgunArgs[28] = "-max_n";
                 for (int i = 0; i < ns.length; i++) {
-                    shotgunArgs[1] = Integer.toString(ns[i]);
+                    shotgunArgs[1] = Integer.toString(ns[i][0]);
+                    shotgunArgs[29] = Integer.toString(ns[i][1]);
 
                     shotgunArgs[4] = "-c";
                     for (int k = 0; k < cs.length; k++) {
@@ -89,7 +95,7 @@ public class Automation {
 
 
                                 // overwrite folder path
-                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\Senseval3\\GN-CC840\\n-" + ns[i] +
+                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\Senseval3\\GN\\fractional\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
@@ -129,5 +135,16 @@ public class Automation {
         }
 
         return newObj;
+    }
+
+    public static List<WindowConfiguration> clone(List<WindowConfiguration> list) {
+        List<WindowConfiguration> clonedList;
+
+        clonedList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            clonedList.add(list.get(i).clone());
+        }
+
+        return clonedList;
     }
 }
