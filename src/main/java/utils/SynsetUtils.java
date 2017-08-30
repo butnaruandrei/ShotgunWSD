@@ -53,7 +53,7 @@ public class SynsetUtils {
         String targetWord;
         String key1, key2;
         String targetGlobalSense;
-        double score;
+        double score, weight;
 
 
         for (int i = 0; i < synsetsSize - 1; i++) {
@@ -74,8 +74,10 @@ public class SynsetUtils {
                     SynsetUtils.cacheSynsetRelatedness.put(key1, score);
                 }
 
-                senseScore = configurationOperation.applyOperation(senseScore, score);
-                senseScore = configurationOperation.applyOperation(senseScore, score);
+                weight = weightMethod.weight(synsetsSize, i, j);
+
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
             }
         }
 

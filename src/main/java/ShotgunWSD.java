@@ -142,7 +142,7 @@ class ShotgunWSD {
         else if(configurationOperationName.equals("add"))
             SynsetUtils.configurationOperation = AddOperation.getInstance();
 
-        BaseWeight weightMethod = new FractionalWeight();
+        BaseWeight weightMethod = new ExponentialWeight();
 
         SynsetUtils.synsetRelatedness = synsetRelatedness;
         SynsetUtils.weightMethod = weightMethod;
