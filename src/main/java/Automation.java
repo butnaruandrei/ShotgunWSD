@@ -15,6 +15,7 @@ public class Automation {
     public static HashMap<String, Hashtable<Integer, List<WindowConfiguration>>> backupDocumentWindowSolutions;
 
     public static void main(String[] args) {
+
         Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};

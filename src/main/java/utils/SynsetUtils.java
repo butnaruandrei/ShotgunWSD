@@ -1,6 +1,7 @@
 package utils;
 
 import configuration.operations.ConfigurationOperation;
+import configuration.weights.BaseWeight;
 import edu.smu.tspell.wordnet.*;
 import relatedness.SynsetRelatedness;
 
@@ -12,16 +13,20 @@ import java.util.HashMap;
 public class SynsetUtils {
     public static ConfigurationOperation configurationOperation;
     public static SynsetRelatedness synsetRelatedness;
+    public static BaseWeight weightMethod;
 
     public static HashMap<String, Double> cacheSynsetRelatedness;
 
     public static double computeConfigurationScore(int[] synsets, double[][] synsetPairScores) {
         double senseScore = configurationOperation.getInitialScore();
+        double weight;
 
         for (int i = 0; i < synsets.length - 1; i++) {
             for (int j = i + 1; j < synsets.length; j++) {
-                senseScore = configurationOperation.applyOperation(senseScore, synsetPairScores[synsets[i]][synsets[j]]);
-                senseScore = configurationOperation.applyOperation(senseScore, synsetPairScores[synsets[j]][synsets[i]]);
+                weight = weightMethod.weight(synsets.length, i, j);
+
+                senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[i]][synsets[j]]);
+                senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[j]][synsets[i]]);
             }
         }
 
@@ -48,7 +53,7 @@ public class SynsetUtils {
         String targetWord;
         String key1, key2;
         String targetGlobalSense;
-        double score;
+        double score, weight;
 
 
         for (int i = 0; i < synsetsSize - 1; i++) {
@@ -69,8 +74,10 @@ public class SynsetUtils {
                     SynsetUtils.cacheSynsetRelatedness.put(key1, score);
                 }
 
-                senseScore = configurationOperation.applyOperation(senseScore, score);
-                senseScore = configurationOperation.applyOperation(senseScore, score);
+                weight = weightMethod.weight(synsetsSize, i, j);
+
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
             }
         }
 
