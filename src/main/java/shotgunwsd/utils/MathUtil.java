@@ -1,4 +1,4 @@
-package utils;
+package shotgunwsd.utils;
 
 /**
  * Created by Butnaru Andrei-Madalin.

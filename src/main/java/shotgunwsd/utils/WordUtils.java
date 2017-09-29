@@ -1,4 +1,4 @@
-package utils;
+package shotgunwsd.utils;
 
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;

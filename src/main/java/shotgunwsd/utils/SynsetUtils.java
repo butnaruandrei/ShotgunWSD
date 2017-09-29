@@ -1,9 +1,9 @@
-package utils;
+package shotgunwsd.utils;
 
-import configuration.operations.ConfigurationOperation;
-import configuration.weights.BaseWeight;
+import shotgunwsd.configuration.operations.ConfigurationOperation;
+import shotgunwsd.configuration.weights.BaseWeight;
 import edu.smu.tspell.wordnet.*;
-import relatedness.SynsetRelatedness;
+import shotgunwsd.relatedness.SynsetRelatedness;
 
 import java.util.HashMap;
 
