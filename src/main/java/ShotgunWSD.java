@@ -1,3 +1,4 @@
+import akka.cluster.Cluster;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -16,6 +17,10 @@ import relatedness.embeddings.WordEmbeddingRelatedness;
 import relatedness.embeddings.sense.computations.AverageComputation;
 import relatedness.embeddings.sense.computations.GeometricMedianComputation;
 import relatedness.embeddings.sense.computations.SenseComputation;
+import relatedness.kernel.ClusterRepresentation;
+import relatedness.kernel.KernelRelatedness;
+import relatedness.kernel.kmeans.DistanceFunction;
+import relatedness.kernel.kmeans.EuclidianDistance;
 import relatedness.lesk.LeskRelatedness;
 import utils.SynsetUtils;
 import writers.DatabaseWriter;
@@ -23,6 +28,7 @@ import writers.DocumentWriter;
 import writers.FileOutputWriter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class ShotgunWSD {
     @Parameter(names = "-min_n", description = "Min length of the context windows", required = true)
@@ -132,7 +138,9 @@ class ShotgunWSD {
         else if(senseComputationMethod.equals("avg"))
             senseComputation = AverageComputation.getInstance();
 
-        SynsetRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        DistanceFunction distanceFunction = new EuclidianDistance();
+        // KernelRelatedness synsetClusterRelatedness = KernelRelatedness.getInstance(wePath, weType, 50, distanceFunction);
+        WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
         // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         if(configurationOperationName.equals("add2"))
@@ -150,7 +158,26 @@ class ShotgunWSD {
         Synset[] results;
         long t = System.currentTimeMillis();
         System.out.println("[START]");
+
+        HashMap<String, Double[]> wordCluster = null;
         for(ParsedDocument document : documents) {
+
+//            if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
+//                synsetClusterRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
+//            } else {
+//                synsetClusterRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
+//                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
+//            }
+
+            if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
+                wordCluster = Automation.backupWordClusters.get(document.getDocID());
+            } else {
+                wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 500, document);
+                Automation.backupWordClusters.put(document.getDocID(), wordCluster);
+            }
+
+            synsetRelatedness.setWordClusters(wordCluster);
+
             ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
             results = wsdRunner.run();
 

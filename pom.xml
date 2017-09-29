@@ -8,6 +8,18 @@
     <artifactId>ShotgunWSD</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+
+    <repositories>
+        <repository>
+            <id>hierarchical-clustering-java</id>
+            <url>https://github.com/lbehnke/hierarchical-clustering-java</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -96,7 +108,12 @@
             <classifier>models</classifier>
         </dependency>
 
-
+        <dependency>
+            <groupId>ca.pjer</groupId>
+            <artifactId>ekmeans</artifactId>
+            <version>2.0.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

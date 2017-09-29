@@ -47,6 +47,10 @@ public class WindowConfiguration {
     public double getScore(){
         if(score == -1)
             score = SynsetUtils.computeConfigurationScore(configurationSynsets, windowWords, windowWordsPOS, globalSynsets);
+
+        if(Double.isNaN(score))
+            return 0d;
+
         return score;
     }
 

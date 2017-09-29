@@ -11,13 +11,15 @@ import relatedness.embeddings.sense.computations.SenseComputation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 /**
  * Created by Butnaru Andrei-Madalin.
  */
 public class WordEmbeddingRelatedness extends SynsetRelatedness {
-    private static WordVectors wordVectors = null;
+    public static WordVectors wordVectors = null;
+    private HashMap<String, Double[]> wordClusters = null;
     static WordEmbeddingRelatedness instance = null;
     static SenseComputation senseComputation;
 
@@ -36,6 +38,20 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
         return instance;
     }
 
+    public static WordEmbeddingRelatedness getInstance(SenseComputation senseComputation) {
+        if(instance == null) {
+            instance = new WordEmbeddingRelatedness();
+        }
+
+        WordEmbeddingRelatedness.senseComputation = senseComputation;
+
+        return instance;
+    }
+
+    public void setWordClusters(HashMap<String, Double[]> wordClusters) {
+        this.wordClusters = wordClusters;
+    }
+
     public double computeSimilarity(Object[] synsetRepresentation, String[] windowWords, int[] synset2WordIndex, int k, int j){
         INDArray[] windowWordsSenseEmbeddings = (INDArray[])synsetRepresentation;
 
@@ -47,21 +63,16 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
         return score;
     }
 
-    public double[] zeros(int size) {
-        double[] result = new double[size];
-
-        for (int i = 0; i < size; i++) {
-            result[i] = 0d;
-        }
-
-        return result;
-    }
-
     public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
         INDArray[] senseEmbeddings = new INDArray[2];
-        senseEmbeddings[0] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset1, word1, senseComputation));
-        senseEmbeddings[1] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset2, word2, senseComputation));
 
+        if(wordClusters == null) {
+            senseEmbeddings[0] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset1, word1, senseComputation));
+            senseEmbeddings[1] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, synset2, word2, senseComputation));
+        } else {
+            senseEmbeddings[0] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordClusters, synset1, word1, senseComputation));
+            senseEmbeddings[1] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordClusters, synset2, word2, senseComputation));
+        }
         return computeSimilarity(senseEmbeddings, null, null, 0, 1);
     }
 
@@ -71,7 +82,11 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
     public Object[] computeSynsetRepresentations(Synset[] windowWordsSynsets, String[] windowWords, int[] synset2WordIndex) {
         Object[] windowWordsSenseEmbeddings = new INDArray[windowWordsSynsets.length];
         for (int k = 0; k < windowWordsSynsets.length; k++) {
-            windowWordsSenseEmbeddings[k] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, windowWordsSynsets[k], windowWords[synset2WordIndex[k]], senseComputation));
+            if(wordClusters == null) {
+                windowWordsSenseEmbeddings[k] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordVectors, windowWordsSynsets[k], windowWords[synset2WordIndex[k]], senseComputation));
+            } else {
+                windowWordsSenseEmbeddings[k] = Nd4j.create(SenseEmbedding.getSenseEmbedding(wordClusters, windowWordsSynsets[k], windowWords[synset2WordIndex[k]], senseComputation));
+            }
         }
 
         return windowWordsSenseEmbeddings;

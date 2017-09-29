@@ -57,6 +57,33 @@ public class SenseEmbedding {
             }
         }
 
+        return convertSenseEmbeddings(senseEmbeddings, synset, senseComputation);
+    }
+
+    public static double[] getSenseEmbedding(HashMap<String, Double[]> wordClusters, Synset synset, String word, SenseComputation senseComputation) {
+        if(wordEmbeddings.containsKey(synset)){
+            return ArrayUtils.toPrimitive(wordEmbeddings.get(synset));
+        }
+
+        String[] words = getSenseBag(synset, word);
+        ArrayList<Double[]> senseEmbeddings = new ArrayList<>();
+
+        // For each word in the sense bag, get the coresponding word embeddings and store them in an array
+        for (String w : words) {
+            if (w != null) {
+                allWords.add(w);
+
+                if (wordClusters.containsKey(w)) {
+                    senseEmbeddings.add(wordClusters.get(w));
+                }
+            }
+        }
+
+        return convertSenseEmbeddings(senseEmbeddings, synset, senseComputation);
+    }
+
+    public static double[] convertSenseEmbeddings(ArrayList<Double[]> senseEmbeddings, Synset synset, SenseComputation senseComputation) {
+        double[] senseEmbedding;
         if(senseEmbeddings.size() == 0) {
             senseEmbedding = new double[300];
             for (int i = 0; i < senseEmbedding.length; i++) {
@@ -66,10 +93,7 @@ public class SenseEmbedding {
             senseEmbedding = senseComputation.compute(senseEmbeddings);
         }
 
-        tmpSenseEmbedding = new Double[senseEmbedding.length];
-        for (int i = 0; i < tmpSenseEmbedding.length; i++) {
-            tmpSenseEmbedding[i] = senseEmbedding[i];
-        }
+        Double[] tmpSenseEmbedding = ArrayUtils.toObject(senseEmbedding);
         wordEmbeddings.put(synset, tmpSenseEmbedding);
 
         return senseEmbedding;

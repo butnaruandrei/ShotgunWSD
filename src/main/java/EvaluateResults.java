@@ -4,17 +4,24 @@ import java.util.Scanner;
 
 /**
  * Created by Butnaru Andrei-Madalin.
+ * incerc cu 5000
+ * incerc cu kernel (fac o matrice de similaritate si o folosesc pe aia)
+ * fac 4 clustere, generez reprezentarea fiecarui sensebag, si aleg sensurile care sunt cele mai apropiate de centroidul curent
  */
 public class EvaluateResults {
     public static void main(String[] args) {
         Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}};
-        Integer[] cs = {10,15,20};
+        // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
+        // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
+        Integer[] cs = {5,10,15,20};
         Integer[] ks = {1,5,10,15,20};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
+        // Integer[][] minMaxSynsetCollisions = { {5, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5} };
+        // Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4} };
         // Integer[][] minMaxSynsetCollisions = { {1, 1} };
 //       String[] configurationOperationNames = {"add2", "log", "add"};
 //        String[] senseComputationMethods = {"avg", "geo"};
-        String[] configurationOperationNames = {"add"};
+        String[] configurationOperationNames = {"log"};
         String[] senseComputationMethods = {"avg"};
 
         String outputPath;
@@ -43,7 +50,7 @@ public class EvaluateResults {
                                 if(i == 0)
                                     System.out.print(minMaxSynsetCollisions[l][0] + "-" + minMaxSynsetCollisions[l][1] + "\t");
 
-                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\exp-decay-fixed\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\kernel-relatedness\\we-500\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
