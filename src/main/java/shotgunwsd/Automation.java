@@ -3,6 +3,7 @@ package shotgunwsd;
 import shotgunwsd.configuration.WindowConfiguration;
 import it.unimi.dsi.fastutil.Hash;
 import shotgunwsd.relatedness.embeddings.SenseEmbedding;
+import shotgunwsd.utils.MatrixSimilarity;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -18,6 +19,7 @@ public class Automation {
     public static HashMap<String, Hashtable<Integer, List<WindowConfiguration>>> backupDocumentWindowSolutions;
     public static HashMap<String, HashMap<String, Integer>> backupWordCentroids;
     public static HashMap<String, HashMap<String, Double[]>> backupWordClusters;
+    public static HashMap<String, MatrixSimilarity> backupMaxtrixSimilarity;
 
     public static void main(String[] args) {
 
@@ -73,6 +75,8 @@ public class Automation {
 
             shotgunArgs[12] = "-senseComputationMethod";
             for (int n = 0; n < senseComputationMethods.length; n++) {
+                backupMaxtrixSimilarity = new HashMap<>();
+
                 shotgunArgs[13] = senseComputationMethods[n];
 
                 shotgunArgs[0] = "-min_n";
@@ -103,7 +107,7 @@ public class Automation {
 
 
                                 // overwrite folder path
-                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\kernel-relatedness\\we-500\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix\\we\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +

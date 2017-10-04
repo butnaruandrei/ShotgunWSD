@@ -7,6 +7,7 @@ import edu.smu.tspell.wordnet.WordNetDatabase;
 import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import shotgunwsd.parsers.ParsedDocument;
 import shotgunwsd.relatedness.SynsetRelatedness;
+import shotgunwsd.utils.MatrixSimilarity;
 import shotgunwsd.utils.POSUtils;
 import shotgunwsd.utils.SynsetUtils;
 import shotgunwsd.utils.WordUtils;
@@ -31,6 +32,7 @@ public class ShotgunWSDRunner {
     private int maxSynsetCollisions;
 
     private SynsetRelatedness synsetRelatedness;
+    private MatrixSimilarity matrixSimilarity;
 
     // TODO check if we can remove this threshold
     private long maxSynsetCombinationNumber = 1000000000; // The maximum number of possible synset combinations that a context window can have
@@ -59,8 +61,20 @@ public class ShotgunWSDRunner {
         this.synsetRelatedness = synsetRelatedness;
 
         SynsetUtils.cacheSynsetRelatedness = new HashMap<>();
+    }
 
+    public ShotgunWSDRunner(ParsedDocument document, int minWindowSize, int maxWindowSize, int numberConfigs, int numberOfVotes, int minSynsetCollisions, int maxSynsetCollisions, MatrixSimilarity matrixSimilarity) {
+        this.document = document;
+        this.minWindowSize = minWindowSize;
+        this.maxWindowSize = maxWindowSize;
+        this.numberConfigs = numberConfigs;
+        this.numberOfVotes = numberOfVotes;
+        this.minSynsetCollisions = minSynsetCollisions;
+        this.maxSynsetCollisions = maxSynsetCollisions;
 
+        this.matrixSimilarity = matrixSimilarity;
+
+        SynsetUtils.cacheSynsetRelatedness = new HashMap<>();
     }
 
     public Synset[] run() {
@@ -108,7 +122,8 @@ public class ShotgunWSDRunner {
                 }
 
                 System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations);
-                ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, synsetRelatedness);
+                // ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, synsetRelatedness);
+                ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, matrixSimilarity);
                 localWSD.run(wnDatabase);
                 windowSolutions = localWSD.getWindowSolutions();
 

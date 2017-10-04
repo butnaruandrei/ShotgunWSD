@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class SynsetUtils {
     public static ConfigurationOperation configurationOperation;
     public static SynsetRelatedness synsetRelatedness;
+    public static MatrixSimilarity matrixSimilarity;
     public static BaseWeight weightMethod;
 
     public static HashMap<String, Double> cacheSynsetRelatedness;
@@ -27,6 +28,23 @@ public class SynsetUtils {
 
                 senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[i]][synsets[j]]);
                 senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[j]][synsets[i]]);
+            }
+        }
+
+        return senseScore;
+    }
+
+    public static double computeConfigurationScore(int[] synsets, int wordID, MatrixSimilarity matrixSimilarity) {
+        double senseScore = configurationOperation.getInitialScore();
+        double weight;
+        int offset = matrixSimilarity.getWordsSynsetStart(wordID);
+
+        for (int i = 0; i < synsets.length - 1; i++) {
+            for (int j = i + 1; j < synsets.length; j++) {
+                weight = weightMethod.weight(synsets.length, i, j);
+
+                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(offset + synsets[i], offset + synsets[j]));
+                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(offset + synsets[j], offset + synsets[i]));
             }
         }
 
@@ -70,7 +88,8 @@ public class SynsetUtils {
                 } else if(SynsetUtils.cacheSynsetRelatedness.containsKey(key2)){
                     score = SynsetUtils.cacheSynsetRelatedness.get(key2);
                 } else {
-                    score = synsetRelatedness.computeSimilarity(targetSynset, targetWord, synsets[j], words[j]);
+                    // score = synsetRelatedness.computeSimilarity(targetSynset, targetWord, synsets[j], words[j]);
+                    score = matrixSimilarity.getSimilarity(targetGlobalSense, globalSynsets[j]);
                     SynsetUtils.cacheSynsetRelatedness.put(key1, score);
                 }
 

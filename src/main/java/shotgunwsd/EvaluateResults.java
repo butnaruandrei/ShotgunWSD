@@ -52,7 +52,7 @@ public class EvaluateResults {
                                 if(i == 0)
                                     System.out.print(minMaxSynsetCollisions[l][0] + "-" + minMaxSynsetCollisions[l][1] + "\t");
 
-                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\kernel-relatedness\\we-500\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix\\we\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +

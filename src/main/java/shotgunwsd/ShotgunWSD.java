@@ -11,6 +11,7 @@ import shotgunwsd.configuration.weights.BaseWeight;
 import shotgunwsd.configuration.weights.ExponentialWeight;
 import edu.smu.tspell.wordnet.Synset;
 import shotgunwsd.parsers.*;
+import shotgunwsd.relatedness.SynsetRelatedness;
 import shotgunwsd.relatedness.embeddings.WordEmbeddingRelatedness;
 import shotgunwsd.relatedness.embeddings.sense.computations.AverageComputation;
 import shotgunwsd.relatedness.embeddings.sense.computations.GeometricMedianComputation;
@@ -18,6 +19,8 @@ import shotgunwsd.relatedness.embeddings.sense.computations.SenseComputation;
 import shotgunwsd.relatedness.kernel.ClusterRepresentation;
 import shotgunwsd.relatedness.kernel.kmeans.DistanceFunction;
 import shotgunwsd.relatedness.kernel.kmeans.EuclidianDistance;
+import shotgunwsd.relatedness.lesk.LeskRelatedness;
+import shotgunwsd.utils.MatrixSimilarity;
 import shotgunwsd.utils.SynsetUtils;
 import shotgunwsd.writers.DatabaseWriter;
 import shotgunwsd.writers.DocumentWriter;
@@ -156,7 +159,20 @@ class ShotgunWSD {
         System.out.println("[START]");
 
         HashMap<String, Double[]> wordCluster = null;
+
+        MatrixSimilarity matrixSimilarity;
+        MatrixSimilarity.wnDatabase = ShotgunWSDRunner.wnDatabase;
+
+
         for(ParsedDocument document : documents) {
+            if(Automation.backupMaxtrixSimilarity.containsKey(document.getDocID())) {
+                matrixSimilarity = Automation.backupMaxtrixSimilarity.get(document.getDocID());
+            } else {
+                matrixSimilarity = new MatrixSimilarity(document, synsetRelatedness);
+                Automation.backupMaxtrixSimilarity.put(document.getDocID(), matrixSimilarity);
+            }
+
+            SynsetUtils.matrixSimilarity = matrixSimilarity;
 
 //            if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
 //                synsetClusterRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
@@ -165,16 +181,17 @@ class ShotgunWSD {
 //                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
 //            }
 
-            if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
-                wordCluster = Automation.backupWordClusters.get(document.getDocID());
-            } else {
-                wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 500, document);
-                Automation.backupWordClusters.put(document.getDocID(), wordCluster);
-            }
+//            if(Automation.backupDocumentWindowSolutions.containsKey(document.getDocID())) {
+//                wordCluster = Automation.backupWordClusters.get(document.getDocID());
+//            } else {
+//                wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 500, document);
+//                Automation.backupWordClusters.put(document.getDocID(), wordCluster);
+//            }
 
-            synsetRelatedness.setWordClusters(wordCluster);
+            // synsetRelatedness.setWordClusters(wordCluster);
 
-            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
+            // ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
+            ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, matrixSimilarity);
             results = wsdRunner.run();
 
             fileWriter.write(document.getDocID(), results, document.getWordLemmas(), document.getWordsID());

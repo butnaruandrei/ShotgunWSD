@@ -4,6 +4,7 @@ import shotgunwsd.configuration.WindowConfiguration;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 import shotgunwsd.relatedness.SynsetRelatedness;
+import shotgunwsd.utils.MatrixSimilarity;
 import shotgunwsd.utils.POSUtils;
 import shotgunwsd.utils.SynsetUtils;
 import shotgunwsd.utils.WordUtils;
@@ -30,6 +31,7 @@ public class ShotgunWSDLocal {
     private int numberConfigs, offset;
 
     private SynsetRelatedness synsetRelatedness;
+    private MatrixSimilarity matrixSimilarity;
 
     /**
      * @param offset         Global index of the first word in the context window
@@ -50,6 +52,19 @@ public class ShotgunWSDLocal {
         windowSolutions = new LinkedList<>();
     }
 
+    public ShotgunWSDLocal(int offset, String[] windowWords, String[] windowWordsPOS, int numberConfigs, MatrixSimilarity matrixSimilarity) {
+        this.offset = offset;
+        this.windowWords = windowWords;
+        this.windowWordsPOS = windowWordsPOS;
+        this.numberConfigs = numberConfigs;
+
+        this.matrixSimilarity = matrixSimilarity;
+
+        windowWordsSynsetStart = new int[windowWords.length];
+        windowWordsSynsetLength = new int[windowWords.length];
+        windowSolutions = new LinkedList<>();
+    }
+
     /**
      * Run the WSD Algorithm for the local window
      *
@@ -58,8 +73,8 @@ public class ShotgunWSDLocal {
     public void run(WordNetDatabase wnDatabase) {
         buildWindowSynsetsArray(wnDatabase);
         buildSynsetMapping();
-        Object[] synsetRepresentations = synsetRelatedness.computeSynsetRepresentations(windowWordsSynsets, windowWords, synset2WordIndex);
-        computeWordPairSynsetRelatedness(synsetRepresentations);
+//        Object[] synsetRepresentations = synsetRelatedness.computeSynsetRepresentations(windowWordsSynsets, windowWords, synset2WordIndex);
+//        computeWordPairSynsetRelatedness(synsetRepresentations);
 
         generateSynsetCombinations();
     }
@@ -158,7 +173,8 @@ public class ShotgunWSDLocal {
             if(wordIndex < windowWords.length - 1) {
                 generateSynsetCombinations(wordIndex + 1, synsets);
             } else {
-                score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
+                score = SynsetUtils.computeConfigurationScore(synsets, offset, matrixSimilarity);
+                // score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
                 configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
 
                 size = windowSolutions.size();
