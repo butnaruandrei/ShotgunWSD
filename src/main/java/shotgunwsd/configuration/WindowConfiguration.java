@@ -17,25 +17,28 @@ public class WindowConfiguration {
     private String[] windowWords;
     private String[] windowWordsPOS;
     private Synset[] configurationSynsets;
+    private String[] configurationSynsetIDS;
 
 
     public static WindowConfigurationComparator windowConfigurationComparator = new WindowConfigurationComparator();
 
     public WindowConfiguration(){}
 
-    public WindowConfiguration(int[] synsetIndex, String[] windowWords, String[] windowWordsPOS, Synset[] configurationSynsets, double score){
+    public WindowConfiguration(int[] synsetIndex, String[] windowWords, String[] windowWordsPOS, Synset[] configurationSynsets, String[] configurationSynsetIDS, double score){
         this.synsetIndex = synsetIndex;
         this.windowWords = windowWords;
         this.windowWordsPOS = windowWordsPOS;
         this.configurationSynsets = configurationSynsets;
+        this.configurationSynsetIDS = configurationSynsetIDS;
         this.score = score;
     }
 
-    public WindowConfiguration(int[] synsetIndex, String[] windowWords, String[] windowWordsPOS, Synset[] configurationSynsets, String[] globalSynsets){
+    public WindowConfiguration(int[] synsetIndex, String[] windowWords, String[] windowWordsPOS, Synset[] configurationSynsets, String[] globalSynsets, String[] configurationSynsetIDS){
         this.synsetIndex = synsetIndex;
         this.globalSynsets = globalSynsets;this.windowWords = windowWords;
         this.windowWordsPOS = windowWordsPOS;
         this.configurationSynsets = configurationSynsets;
+        this.configurationSynsetIDS = configurationSynsetIDS;
 
         this.score = -1;
 
@@ -44,10 +47,12 @@ public class WindowConfiguration {
     }
 
     public double getScore(){
-        if(score == -1)
-            score = SynsetUtils.computeConfigurationScore(configurationSynsets, windowWords, windowWordsPOS, globalSynsets);
+        if(score == -1) {
+            // score = SynsetUtils.computeConfigurationScore(configurationSynsets, windowWords, windowWordsPOS, globalSynsets);
+            score = SynsetUtils.calculateConfigurationScore(configurationSynsetIDS);
+        }
 
-        if(Double.isNaN(score))
+        if (Double.isNaN(score))
             return 0d;
 
         return score;
@@ -88,6 +93,8 @@ public class WindowConfiguration {
     public Synset[] getConfigurationSynsets(){
         return configurationSynsets;
     }
+
+    public String[] getConfigurationSynsetIDS() { return configurationSynsetIDS; }
 
     public void setGlobalIDS(int offset, int[] synset2WordIndex, int[] windowWordsSynsetStart) {
         globalSynsets = new String[getLength()];
@@ -144,8 +151,9 @@ public class WindowConfiguration {
         String[] windowWords  = ArrayUtils.addAll(Arrays.copyOf(window1.getWindowWords(), window1.getLength()), Arrays.copyOfRange(window2.getWindowWords(), startAt, window2.getLength()));
         String[] windowWordsPOS  = ArrayUtils.addAll(Arrays.copyOf(window1.getWindowWordsPOS(), window1.getLength()), Arrays.copyOfRange(window2.getWindowWordsPOS(), startAt, window2.getLength()));
         Synset[] configurationSynsets = ArrayUtils.addAll(Arrays.copyOf(window1.getConfigurationSynsets(), window1.getLength()), Arrays.copyOfRange(window2.getConfigurationSynsets(), startAt, window2.getLength()));
+        String[] configurationSynsetIDS = ArrayUtils.addAll(Arrays.copyOf(window1.getConfigurationSynsetIDS(), window1.getLength()), Arrays.copyOfRange(window2.getConfigurationSynsetIDS(), startAt, window2.getLength()));
 
-        return new WindowConfiguration(synsets, windowWords, windowWordsPOS, configurationSynsets, globalSenses);
+        return new WindowConfiguration(synsets, windowWords, windowWordsPOS, configurationSynsets, globalSenses, configurationSynsetIDS);
     }
 
     public WindowConfiguration clone() {
@@ -159,6 +167,7 @@ public class WindowConfiguration {
         newClone.windowWords = this.windowWords;
         newClone.windowWordsPOS = this.windowWordsPOS;
         newClone.configurationSynsets = this.configurationSynsets;
+        newClone.configurationSynsetIDS = this.configurationSynsetIDS;
 
         return newClone;
     }

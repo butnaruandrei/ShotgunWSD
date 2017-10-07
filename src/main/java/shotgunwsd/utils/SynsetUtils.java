@@ -18,39 +18,21 @@ public class SynsetUtils {
 
     public static HashMap<String, Double> cacheSynsetRelatedness;
 
-    public static double computeConfigurationScore(int[] synsets, double[][] synsetPairScores) {
+    public static double computeConfigurationScore(String[] synsetIDS, MatrixSimilarity matrixSimilarity) {
         double senseScore = configurationOperation.getInitialScore();
         double weight;
 
-        for (int i = 0; i < synsets.length - 1; i++) {
-            for (int j = i + 1; j < synsets.length; j++) {
-                weight = weightMethod.weight(synsets.length, i, j);
+        for (int i = 0; i < synsetIDS.length - 1; i++) {
+            for (int j = i + 1; j < synsetIDS.length; j++) {
+                weight = weightMethod.weight(synsetIDS.length, i, j);
 
-                senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[i]][synsets[j]]);
-                senseScore = configurationOperation.applyOperation(senseScore, weight * synsetPairScores[synsets[j]][synsets[i]]);
+                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(synsetIDS[i], synsetIDS[j]));
+                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(synsetIDS[j], synsetIDS[i]));
             }
         }
 
         return senseScore;
     }
-
-    public static double computeConfigurationScore(int[] synsets, int wordID, MatrixSimilarity matrixSimilarity) {
-        double senseScore = configurationOperation.getInitialScore();
-        double weight;
-        int offset = matrixSimilarity.getWordsSynsetStart(wordID);
-
-        for (int i = 0; i < synsets.length - 1; i++) {
-            for (int j = i + 1; j < synsets.length; j++) {
-                weight = weightMethod.weight(synsets.length, i, j);
-
-                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(offset + synsets[i], offset + synsets[j]));
-                senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(offset + synsets[j], offset + synsets[i]));
-            }
-        }
-
-        return senseScore;
-    }
-
     public static Synset[] getSynsets(int[] synsetsIndex, Synset[] windowWordsSynsets){
         Synset[] returnSynsets = new Synset[synsetsIndex.length];
 
@@ -59,6 +41,34 @@ public class SynsetUtils {
         }
 
         return returnSynsets;
+    }
+
+    public static String[] getSynsetIDs(int[] synsetsIndex, String[] windowSynsetIDs){
+        String[] returnSynsets = new String[synsetsIndex.length];
+
+        for (int i = 0; i < synsetsIndex.length; i++) {
+            returnSynsets[i] = windowSynsetIDs[synsetsIndex[i]];
+        }
+
+        return returnSynsets;
+    }
+
+    public static double calculateConfigurationScore(String[] configurationSynsetIDS) {
+        double senseScore = configurationOperation.getInitialScore();
+        double score, weight;
+
+        for (int i = 0; i < configurationSynsetIDS.length - 1; i++) {
+            for (int j = i + 1; j < configurationSynsetIDS.length; j++) {
+                score = matrixSimilarity.getSimilarity(configurationSynsetIDS[i], configurationSynsetIDS[j]);
+
+                weight = weightMethod.weight(configurationSynsetIDS.length, i, j);
+
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
+                senseScore = configurationOperation.applyOperation(senseScore, weight * score);
+            }
+        }
+
+        return senseScore;
     }
 
     public static double computeConfigurationScore(Synset[] synsets, String[] words, String[] POSTags, String[] globalSynsets){
@@ -89,7 +99,10 @@ public class SynsetUtils {
                     score = SynsetUtils.cacheSynsetRelatedness.get(key2);
                 } else {
                     // score = synsetRelatedness.computeSimilarity(targetSynset, targetWord, synsets[j], words[j]);
-                    score = matrixSimilarity.getSimilarity(targetGlobalSense, globalSynsets[j]);
+                    // score = matrixSimilarity.getSimilarity(targetGlobalSense, globalSynsets[j]);
+
+                    score = matrixSimilarity.getSimilarity(targetSynset, targetWord,  synsets[j], words[j]);
+
                     SynsetUtils.cacheSynsetRelatedness.put(key1, score);
                 }
 
@@ -182,6 +195,17 @@ public class SynsetUtils {
                 senseKey = tmpSenseKey;
                 break;
             }
+        }
+
+        return senseKey;
+    }
+
+    public static String computeSynsetID(Synset synset, String word) {
+        String senseKey = word + "-" + String.join("-", synset.getSenseKeys());
+
+        if(synset.getType() == SynsetType.ADJECTIVE_SATELLITE) {
+            AdjectiveSatelliteSynset adjSynset = (AdjectiveSatelliteSynset) synset;
+            senseKey += "-" + String.join("-", adjSynset.getHeadSynset().getSenseKeys());
         }
 
         return senseKey;

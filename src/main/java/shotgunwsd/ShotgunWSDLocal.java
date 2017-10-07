@@ -23,6 +23,7 @@ public class ShotgunWSDLocal {
     private double[][] synsetPairScores;
     protected int[] synset2WordIndex;
     protected Synset[] windowWordsSynsets;
+    protected String[] windowSynsetIDs;
 
     private LinkedList<WindowConfiguration> windowSolutions;
 
@@ -108,6 +109,10 @@ public class ShotgunWSDLocal {
             }
         }
 
+        windowSynsetIDs = new String[windowWordsSynsets.length];
+        for (int i = 0; i < windowSynsetIDs.length; i++) {
+            windowSynsetIDs[i] = SynsetUtils.computeSynsetID(windowWordsSynsets[i], windowWords[synset2WordIndex[i]]);
+        }
     }
 
     /**
@@ -166,6 +171,7 @@ public class ShotgunWSDLocal {
         double score;
         int size;
         Synset[] configurationSynsets;
+        String[] configurationSynsetIDS;
 
         for (int i = windowWordsSynsetStart[wordIndex]; i < windowWordsSynsetStart[wordIndex] + windowWordsSynsetLength[wordIndex]; i++) {
             synsets[wordIndex] = i;
@@ -173,19 +179,23 @@ public class ShotgunWSDLocal {
             if(wordIndex < windowWords.length - 1) {
                 generateSynsetCombinations(wordIndex + 1, synsets);
             } else {
-                score = SynsetUtils.computeConfigurationScore(synsets, offset, matrixSimilarity);
-                // score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
                 configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
+                configurationSynsetIDS = SynsetUtils.getSynsetIDs(synsets, windowSynsetIDs);
+
+                score = SynsetUtils.computeConfigurationScore(configurationSynsetIDS, matrixSimilarity);
+
+                // score = SynsetUtils.computeConfigurationScore(synsets, offset, matrixSimilarity);
+                // score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
 
                 size = windowSolutions.size();
                 if(size >= this.numberConfigs) {
                     if(score >= windowSolutions.get(windowSolutions.size() - 1).getScore()){
-                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, score));
+                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
                         windowSolutions.pollFirst();
                     }
                 } else {
-                    windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, score));
+                    windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
 
                     if(size == this.numberConfigs - 1) {
                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);

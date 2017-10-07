@@ -10,6 +10,7 @@ import shotgunwsd.relatedness.embeddings.SenseEmbedding;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by Butnaru Andrei-Madalin.
@@ -18,10 +19,10 @@ public class MatrixSimilarity {
     private ParsedDocument _document;
     private double[][] _similarities;
 
-    private int[] wordsSynsetStart;
-    private int[] wordsSynsetLength;
-    protected int[] synset2WordIndex;
-    protected Synset[] wordsSynsets;
+    private Synset[] wordSynsets;
+    private Integer[] synse2WordId;
+    private String[] synsetIDs;
+    private HashMap<String, Integer> reverseSynsetIDs;
 
     public static WordNetDatabase wnDatabase;
     private SynsetRelatedness synsetRelatedness;
@@ -31,100 +32,75 @@ public class MatrixSimilarity {
 
         this.synsetRelatedness = synsetRelatedness;
 
-        computeSynsetSimilarityMatrix();
+        computeSimilarityMatrix();
     }
 
-    public double getSimilarity(int synsetIndex1, int synsetIndex2){
-        return _similarities[synsetIndex1][synsetIndex2];
+    public double getSimilarity(String synsetID1, String synsetID2) {
+        return _similarities[reverseSynsetIDs.get(synsetID1)][reverseSynsetIDs.get(synsetID2)];
     }
 
-    public double getSimilarity(String synsetIndex1, String synsetIndex2){
-        return _similarities[getSynsetIndex(synsetIndex1)][getSynsetIndex(synsetIndex2)];
+    public double getSimilarity(Synset synset1, String word1, Synset synset2, String word2) {
+        String synsetID1 = SynsetUtils.computeSynsetID(synset1, word1);
+        String synsetID2 = SynsetUtils.computeSynsetID(synset2, word2);
+
+        int index1 = reverseSynsetIDs.get(synsetID1);
+        int index2 = reverseSynsetIDs.get(synsetID2);
+
+        return _similarities[index1][index2];
     }
 
-    private int getSynsetIndex(String representation) {
-        int wordIndex = Integer.parseInt(representation.split("-")[0]);
-        int synsetOffset = Integer.parseInt(representation.split("-")[1]);
+    private void computeSimilarityMatrix() {
+        getAllSynsets();
 
-        return wordsSynsetStart[wordIndex] + synsetOffset;
-    }
-
-    private void computeSynsetSimilarityMatrix() {
-        buildWindowSynsetsArray();
-        buildSynsetMapping();
-
-        double[][] sims = new double[wordsSynsets.length][wordsSynsets.length];
-        _similarities = new double[wordsSynsets.length][wordsSynsets.length];
+        double[][] sims = new double[wordSynsets.length][wordSynsets.length];
+        _similarities = new double[wordSynsets.length][wordSynsets.length];
         double sim;
-        for (int i = 0; i < wordsSynsets.length; i++) {
-            for (int j = i; j < wordsSynsets.length; j++) {
-                sim = synsetRelatedness.computeSimilarity(wordsSynsets[i], _document.getWord(synset2WordIndex[i]), wordsSynsets[j], _document.getWord(synset2WordIndex[j]));
+        for (int i = 0; i < wordSynsets.length; i++) {
+            for (int j = i; j < wordSynsets.length; j++) {
+                sim = synsetRelatedness.computeSimilarity(wordSynsets[i], _document.getWord(synse2WordId[i]), wordSynsets[j], _document.getWord(synse2WordId[j]));
                 sims[i][j] = sims[j][i] = sim;
             }
         }
 
-        for (int i = 0; i < wordsSynsets.length; i++) {
-            for (int j = 0; j < wordsSynsets.length; j++) {
+        for (int i = 0; i < wordSynsets.length; i++) {
+            for (int j = 0; j < wordSynsets.length; j++) {
                 _similarities[i][j] = sims[i][j] / (sims[i][i] * sims[j][j]);
             }
         }
     }
 
-    public int getWordsSynsetStart(int wordId) {
-        return wordsSynsetStart[wordId];
-    }
-
-    /**
-     * Build an array that stores, for each synset the word from the context window that represents.
-     */
-    protected void buildSynsetMapping() {
-        int lastIdx;
-        synset2WordIndex = new int[wordsSynsets.length];
-        for (int j = 0; j < wordsSynsetStart.length; j++) {
-            lastIdx = j + 1 == wordsSynsetStart.length ? wordsSynsets.length : wordsSynsetStart[j + 1];
-            for (int k = wordsSynsetStart[j]; k < lastIdx; k++) {
-                synset2WordIndex[k] = j;
-            }
-        }
-
-    }
-
-    /**
-     * This method build and store an array that contains al synsets for all the words in the context window.
-     * This is usefully to keep a simple representation of a synset, and to access it fast, without the need to look in WordNet.
-     */
-    protected void buildWindowSynsetsArray() {
-        wordsSynsetStart = new int[_document.wordsLength()];
-        wordsSynsetLength = new int[_document.wordsLength()];
-
-        ArrayList<Synset> windowSynsets = new ArrayList<>();
+    private void getAllSynsets() {
+        ArrayList<Synset> synsets = new ArrayList<>();
+        ArrayList<String> synsetIds = new ArrayList<>();
+        ArrayList<Integer> words = new ArrayList<>();
 
         Synset[] tmpSynsets;
-        int synsetStartIndex = 0, synsetLength;
+        String key;
 
-        // For each word in the context window.
-        for (int j = 0; j < _document.wordsLength(); j++) {
-            // Extract the words synsets
-            tmpSynsets = WordUtils.extractSynsets(wnDatabase, _document.getWord(j), POSUtils.asSynsetType(_document.getWordPos(j)));
+        for (int i = 0; i < _document.wordsLength(); i++) {
+            tmpSynsets = WordUtils.extractSynsets(wnDatabase, _document.getWord(i), POSUtils.asSynsetType(_document.getWordPos(i)));
 
-            // Insert there synsets to an array
-            synsetLength = tmpSynsets.length;
-            if (tmpSynsets.length == 0) {
-                synsetLength += 1;
-                windowSynsets.add(null);
-            } else {
-                windowSynsets.addAll(Arrays.asList(tmpSynsets));
+            if(tmpSynsets.length > 0) {
+                for (Synset tmpSynset : tmpSynsets) {
+                    key = SynsetUtils.computeSynsetID(tmpSynset, _document.getWord(i));
+                    if (!synsetIds.contains(key)) {
+                        synsets.add(tmpSynset);
+                        words.add(i);
+                        synsetIds.add(key);
+                    }
+                }
             }
-
-            // Set the start index and the number of synsets
-            wordsSynsetStart[j] = synsetStartIndex;
-            wordsSynsetLength[j] = synsetLength;
-
-            // Increment the index position, for the new word
-            synsetStartIndex += synsetLength;
         }
 
-        wordsSynsets = new Synset[windowSynsets.size()];
-        wordsSynsets = windowSynsets.toArray(wordsSynsets);
+        this.wordSynsets = synsets.stream().toArray(Synset[]::new);
+        this.synse2WordId = words.stream().toArray(Integer[]::new);
+        this.synsetIDs = synsetIds.stream().toArray(String[]::new);
+
+        System.out.println(wordSynsets.length);
+
+        reverseSynsetIDs = new HashMap<>();
+        for (int i = 0; i < synsetIDs.length; i++) {
+            reverseSynsetIDs.put(synsetIDs[i], i);
+        }
     }
 }

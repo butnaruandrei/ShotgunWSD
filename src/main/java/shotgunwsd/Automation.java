@@ -107,7 +107,7 @@ public class Automation {
 
 
                                 // overwrite folder path
-                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix\\we\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix-optim\\we\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
