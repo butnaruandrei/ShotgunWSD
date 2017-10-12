@@ -187,20 +187,20 @@ public class ShotgunWSDLocal {
                 // score = SynsetUtils.computeConfigurationScore(synsets, offset, matrixSimilarity);
                 // score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
 
-                size = windowSolutions.size();
-                if(size >= this.numberConfigs) {
-                    if(score >= windowSolutions.get(windowSolutions.size() - 1).getScore()){
-                        windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
-                        windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
-                        windowSolutions.pollFirst();
-                    }
-                } else {
-                    windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
+                 size = windowSolutions.size();
+                 if(size >= this.numberConfigs) {
+                     if(score >= windowSolutions.getLast().getScore()){
+                         windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
+                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+                         windowSolutions.pollFirst();
+                      }
+                 } else {
+                     windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
 
-                    if(size == this.numberConfigs - 1) {
-                        windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
-                    }
-                }
+                     if(size == this.numberConfigs - 1) {
+                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+                     }
+                 }
             }
         }
     }

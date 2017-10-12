@@ -26,6 +26,10 @@
 package shotgunwsd.relatedness.kernel.method;
 
 public class PQKernel {
+    public static double compute(double[] A, double[] B) {
+        return pqk(A, B);
+    }
+
     public static double pqk(double[] A, double[] B) {
         return pqk(A, B, A.length);
     }

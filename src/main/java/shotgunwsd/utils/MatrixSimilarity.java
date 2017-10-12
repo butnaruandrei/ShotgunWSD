@@ -64,7 +64,7 @@ public class MatrixSimilarity {
 
         for (int i = 0; i < wordSynsets.length; i++) {
             for (int j = 0; j < wordSynsets.length; j++) {
-                _similarities[i][j] = sims[i][j] / (sims[i][i] * sims[j][j]);
+                _similarities[i][j] = sims[i][j] / Math.sqrt(sims[i][i] * sims[j][j]);
             }
         }
     }
