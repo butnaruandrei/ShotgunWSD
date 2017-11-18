@@ -36,6 +36,7 @@ public class ShotgunWSDRunner {
 
     // TODO check if we can remove this threshold
     private long maxSynsetCombinationNumber = 1000000000; // The maximum number of possible synset combinations that a context window can have
+    // private long maxSynsetCombinationNumber = 10000000;
 
     public static void loadWordNet(String wnDirectory) {
         System.setProperty("wordnet.database.dir", wnDirectory);
@@ -106,22 +107,33 @@ public class ShotgunWSDRunner {
     private Hashtable<Integer, List<WindowConfiguration>> computeWindows() {
         String[] windowWords, windowWordsPOS;
         long combinations = 0;
+        int offset = 0;
+
         List<WindowConfiguration> windowSolutions, joinedWindowSolutions;
         Hashtable<Integer, List<WindowConfiguration>> documentWindowSolutions = new Hashtable<>();
 
         for (int windowSize = minWindowSize; windowSize <= maxWindowSize; windowSize++) {
             for (int wordIndex = 0; wordIndex <= document.wordsLength() - windowSize; wordIndex++) {
-                windowWords = Arrays.copyOfRange(document.getWords(), wordIndex, wordIndex + windowSize);
-                windowWordsPOS = Arrays.copyOfRange(document.getWordPos(), wordIndex, wordIndex + windowSize);
+                offset = 0;
 
-                combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
+                // do {
+                    windowWords = Arrays.copyOfRange(document.getWords(), wordIndex, wordIndex + windowSize + offset);
+                    windowWordsPOS = Arrays.copyOfRange(document.getWordPos(), wordIndex, wordIndex + windowSize + offset);
+
+                    combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
+//                    offset++;
+//
+//                    if(wordIndex + windowSize + offset > document.wordsLength())
+//                        break;
+//                } while(combinations < maxSynsetCombinationNumber);
+
                 while (combinations > maxSynsetCombinationNumber) {
                     windowWords = Arrays.copyOfRange(windowWords, 0, windowWords.length - 2);
                     windowWordsPOS = Arrays.copyOfRange(windowWordsPOS, 0, windowWordsPOS.length - 2);
                     combinations = SynsetUtils.numberOfSynsetCombination(wnDatabase, windowWords, windowWordsPOS);
                 }
 
-                System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations);
+                System.out.println("Start Local ShotgunWSD from word " + wordIndex + "; Number of combinations: " + combinations + "; Number of words: " + windowWords.length);
                 // ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, synsetRelatedness);
                 ShotgunWSDLocal localWSD = new ShotgunWSDLocal(wordIndex, windowWords, windowWordsPOS, numberConfigs, matrixSimilarity);
                 localWSD.run(wnDatabase);

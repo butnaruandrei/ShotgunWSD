@@ -14,6 +14,7 @@ import shotgunwsd.relatedness.kernel.kmeans.DistanceFunction;
 import shotgunwsd.relatedness.kernel.kmeans.EuclidianDistance;
 import shotgunwsd.relatedness.kernel.method.IntersectionKernel;
 import shotgunwsd.relatedness.kernel.method.PQKernel;
+import shotgunwsd.relatedness.kernel.method.PresenceKernel;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,8 @@ public class KernelRelatedness extends SynsetRelatedness {
         double[][] histograms = (double[][])synsetRepresentation;
 
         // return PQKernel.compute(histograms[k], histograms[j]);
-        return IntersectionKernel.compute(histograms[k], histograms[j]);
+        // return IntersectionKernel.compute(histograms[k], histograms[j]);
+        return PresenceKernel.compute(histograms[k], histograms[j]);
     }
 
     public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
