@@ -36,6 +36,9 @@ public class MatrixSimilarity {
     }
 
     public double getSimilarity(String synsetID1, String synsetID2) {
+        if(reverseSynsetIDs.get(synsetID1) == null || reverseSynsetIDs.get(synsetID2) == null) {
+            return 0d;
+        }
         return _similarities[reverseSynsetIDs.get(synsetID1)][reverseSynsetIDs.get(synsetID2)];
     }
 
@@ -80,7 +83,11 @@ public class MatrixSimilarity {
         for (int i = 0; i < _document.wordsLength(); i++) {
             tmpSynsets = WordUtils.extractSynsets(wnDatabase, _document.getWord(i), POSUtils.asSynsetType(_document.getWordPos(i)));
 
-            if(tmpSynsets.length > 0) {
+            if(tmpSynsets.length == 0) {
+                synsets.add(null);
+                words.add(i);
+                synsetIds.add(_document.getWord(i) + "-unknown");
+            } else {
                 for (Synset tmpSynset : tmpSynsets) {
                     key = SynsetUtils.computeSynsetID(tmpSynset, _document.getWord(i));
                     if (!synsetIds.contains(key)) {

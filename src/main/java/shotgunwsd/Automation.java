@@ -23,7 +23,7 @@ public class Automation {
 
     public static void main(String[] args) {
 
-        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}};
+        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
         Integer[] cs = {5, 10, 15, 20};
@@ -37,6 +37,9 @@ public class Automation {
         String[] configurationOperationNames = {"log"};
         String[] senseComputationMethods = {"avg"};
 
+        Integer[] cluster_sizes = { 250 };
+        Double[]  cluster_cuts  = { 0.25 };
+
         String[] embeddingIDS = {
                 "H:\\GoogleNews-vectors-negative300.bin",
                 "H:\\glove.6B.300d.txt",
@@ -47,11 +50,13 @@ public class Automation {
                 "H:\\Senseval2-GN-CC840-vectors600.txt"
         };
 
-        String[] shotgunArgs = new String[30];
+        String folderPath;
+        String[] shotgunArgs = new String[34];
 
         shotgunArgs[14] = "-wn";
         shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict2.1";
         // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7.1\\dict";
+        // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7";
         shotgunArgs[16] = "-weType";
         shotgunArgs[17] = "Google";
         shotgunArgs[18] = "-we";
@@ -65,63 +70,79 @@ public class Automation {
         shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\SemEval2007\\GN";
         shotgunArgs[24] = "-inputType";
         shotgunArgs[25] = "dataset-semeval2007";
+        // shotgunArgs[25] = "dataset-semcor";
         shotgunArgs[26] = "-outputType";
         shotgunArgs[27] = "dataset";
 
+        for(int cut = 0; cut < cluster_cuts.length; cut++) {
+            shotgunArgs[30] = "-clusterCut";
+            shotgunArgs[31] = Double.toString(cluster_cuts[cut]);
 
-        shotgunArgs[10] = "-configurationOperationName";
-        for (int m = 0; m < configurationOperationNames.length; m++) {
-            shotgunArgs[11] = configurationOperationNames[m];
+            for(int cluster_size = 0; cluster_size < cluster_sizes.length; cluster_size++) {
+                shotgunArgs[32] = "-clusterSize";
+                shotgunArgs[33] = Integer.toString(cluster_sizes[cluster_size]);
 
-            shotgunArgs[12] = "-senseComputationMethod";
-            for (int n = 0; n < senseComputationMethods.length; n++) {
-                backupMaxtrixSimilarity = new HashMap<>();
-                backupWordCentroids = new HashMap<>();
-                backupWordClusters = new HashMap<>();
+                shotgunArgs[10] = "-configurationOperationName";
+                for (int m = 0; m < configurationOperationNames.length; m++) {
+                    shotgunArgs[11] = configurationOperationNames[m];
 
-                shotgunArgs[13] = senseComputationMethods[n];
+                    shotgunArgs[12] = "-senseComputationMethod";
+                    for (int n = 0; n < senseComputationMethods.length; n++) {
+                        backupMaxtrixSimilarity = new HashMap<>();
+                        backupWordCentroids = new HashMap<>();
+                        backupWordClusters = new HashMap<>();
 
-                shotgunArgs[0] = "-min_n";
-                shotgunArgs[28] = "-max_n";
-                for (int i = 0; i < ns.length; i++) {
-                    shotgunArgs[1] = Integer.toString(ns[i][0]);
-                    shotgunArgs[29] = Integer.toString(ns[i][1]);
+                        shotgunArgs[13] = senseComputationMethods[n];
 
-                    shotgunArgs[4] = "-c";
-                    for (int k = 0; k < cs.length; k++) {
-                        shotgunArgs[5] = Integer.toString(cs[k]);
+                        shotgunArgs[0] = "-min_n";
+                        shotgunArgs[28] = "-max_n";
+                        for (int i = 0; i < ns.length; i++) {
+                            shotgunArgs[1] = Integer.toString(ns[i][0]);
+                            shotgunArgs[29] = Integer.toString(ns[i][1]);
 
-                        // TODO remove this
-                        backupDocumentWindowSolutions = new HashMap<>();
+                            shotgunArgs[4] = "-c";
+                            for (int k = 0; k < cs.length; k++) {
+                                shotgunArgs[5] = Integer.toString(cs[k]);
 
-                        shotgunArgs[2] = "-k";
-                        for (int j = 0; j < ks.length; j++) {
-                            shotgunArgs[3] = Integer.toString(ks[j]);
+                                // TODO remove this
+                                backupDocumentWindowSolutions = new HashMap<>();
 
-                            shotgunArgs[6] = "-minSynsetCollisions";
-                            shotgunArgs[8] = "-maxSynsetCollisions";
+                                shotgunArgs[2] = "-k";
+                                for (int j = 0; j < ks.length; j++) {
+                                    shotgunArgs[3] = Integer.toString(ks[j]);
 
-                            for (int l = 0; l < minMaxSynsetCollisions.length; l++) {
-                                shotgunArgs[7] = Integer.toString(minMaxSynsetCollisions[l][0]);
-                                shotgunArgs[9] = Integer.toString(minMaxSynsetCollisions[l][1]);
+                                    shotgunArgs[6] = "-minSynsetCollisions";
+                                    shotgunArgs[8] = "-maxSynsetCollisions";
 
+                                    for (int l = 0; l < minMaxSynsetCollisions.length; l++) {
+                                        shotgunArgs[7] = Integer.toString(minMaxSynsetCollisions[l][0]);
+                                        shotgunArgs[9] = Integer.toString(minMaxSynsetCollisions[l][1]);
 
-                                // overwrite folder path
-                                shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix-optim\\test\\n-" + ns[i][0] + "-" + ns[i][1] +
-                                        "-k-" + ks[j] +
-                                        "-c-" + cs[k] +
-                                        "-misc-" + minMaxSynsetCollisions[l][0] +
-                                        "-masc-" + minMaxSynsetCollisions[l][1] +
-                                        "-conf-" + configurationOperationNames[m] +
-                                        "-comp-" + senseComputationMethods[n];
+                                        folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix-optim\\cluster-filter-" + Integer.toString(cluster_sizes[cluster_size]) + "-" + Double.toString(cluster_cuts[cut]);
+                                        // create folder if not exists
+                                        File directory = new File(folderPath);
+                                        if (! directory.exists()) {
+                                            directory.mkdir();
+                                        }
 
-                                File outputFolder = new File(shotgunArgs[23]);
+                                        // overwrite folder path
+                                        shotgunArgs[23] = folderPath + "\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                                "-k-" + ks[j] +
+                                                "-c-" + cs[k] +
+                                                "-misc-" + minMaxSynsetCollisions[l][0] +
+                                                "-masc-" + minMaxSynsetCollisions[l][1] +
+                                                "-conf-" + configurationOperationNames[m] +
+                                                "-comp-" + senseComputationMethods[n];
 
-                                if (!outputFolder.exists()) {
-                                    System.out.println(outputFolder);
+                                        File outputFolder = new File(shotgunArgs[23]);
 
-                                    ShotgunWSD.main(shotgunArgs);
-                                    // CustomEmbeddings.writeWords(SenseEmbedding.allWords, "H:\\semeval2007-words.txt");
+                                        if (!outputFolder.exists()) {
+                                            System.out.println(outputFolder);
+
+                                            ShotgunWSD.main(shotgunArgs);
+                                            // CustomEmbeddings.writeWords(SenseEmbedding.allWords, "H:\\semeval2007-words.txt");
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -136,14 +157,14 @@ public class Automation {
         List<WindowConfiguration> list, clonedList;
 
         for(Integer key : obj.keySet()){
-            list = obj.get(key);
+        list = obj.get(key);
 
-            clonedList = new ArrayList<>();
-            for (int i = 0; i < list.size(); i++) {
-                clonedList.add(list.get(i).clone());
-            }
+        clonedList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+        clonedList.add(list.get(i).clone());
+        }
 
-            newObj.put(key, clonedList);
+        newObj.put(key, clonedList);
         }
 
         return newObj;

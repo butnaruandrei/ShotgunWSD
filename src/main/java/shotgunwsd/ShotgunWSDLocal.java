@@ -111,7 +111,11 @@ public class ShotgunWSDLocal {
 
         windowSynsetIDs = new String[windowWordsSynsets.length];
         for (int i = 0; i < windowSynsetIDs.length; i++) {
-            windowSynsetIDs[i] = SynsetUtils.computeSynsetID(windowWordsSynsets[i], windowWords[synset2WordIndex[i]]);
+            if(windowWordsSynsets[i] != null) {
+                windowSynsetIDs[i] = SynsetUtils.computeSynsetID(windowWordsSynsets[i], windowWords[synset2WordIndex[i]]);
+            } else {
+                windowSynsetIDs[i] = windowWordsSynsets[i] + "-unknown";
+            }
         }
     }
 

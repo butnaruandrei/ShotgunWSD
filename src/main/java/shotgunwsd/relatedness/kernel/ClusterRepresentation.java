@@ -100,7 +100,7 @@ public class ClusterRepresentation {
         return representation;
     }
 
-    private static HashMap<String, Double[]> buildCentroids(double[][] wordEmbeddings, DistanceFunction distanceFunction, String[] words, int k) {
+    protected static HashMap<String, Double[]> buildCentroids(double[][] wordEmbeddings, DistanceFunction distanceFunction, String[] words, int k) {
         KMeans kmeans = new KMeans(wordEmbeddings, k);
         kmeans.setDistanceFunction(distanceFunction);
         kmeans.run();
@@ -117,7 +117,7 @@ public class ClusterRepresentation {
         return wordCentroids;
     }
 
-    private static int[] buildClusters(double[][] wordEmbeddings, DistanceFunction distanceFunction, String[] words, int k) {
+    protected static int[] buildClusters(double[][] wordEmbeddings, DistanceFunction distanceFunction, String[] words, int k) {
         KMeans kmeans = new KMeans(wordEmbeddings, k);
         kmeans.setDistanceFunction(distanceFunction);
         kmeans.run();
@@ -129,7 +129,7 @@ public class ClusterRepresentation {
         return assignments;
     }
 
-    private static void displayClusters(int[] assignments, String[] words, int k) {
+    protected static void displayClusters(int[] assignments, String[] words, int k) {
         ArrayList<String>[] centroids = new ArrayList[k];
         for (int i = 0; i < centroids.length; i++) {
             centroids[i] = new ArrayList<>();
@@ -141,7 +141,7 @@ public class ClusterRepresentation {
         System.out.println();
     }
 
-    private static boolean isPresent(String word) {
+    protected static boolean isPresent(String word) {
         return word != null;
     }
 
@@ -162,7 +162,7 @@ public class ClusterRepresentation {
         return result;
     }
 
-    private static String[] getSenseBag(Synset synset, String word) {
+    protected static String[] getSenseBag(Synset synset, String word) {
         if(synset == null)
             return new String[0];
 

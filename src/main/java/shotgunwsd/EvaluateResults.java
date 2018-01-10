@@ -15,7 +15,7 @@ public class EvaluateResults {
         Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
-        Integer[] cs = {5,10,15,20};
+        Integer[] cs = {10};
         Integer[] ks = {1,5,10,15,20};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
         // Integer[][] minMaxSynsetCollisions = { {5, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5} };
@@ -52,7 +52,7 @@ public class EvaluateResults {
                                 if(i == 0)
                                     System.out.print(minMaxSynsetCollisions[l][0] + "-" + minMaxSynsetCollisions[l][1] + "\t");
 
-                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix-optim\\test\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2007\\GN\\matrix-optim\\cluster-filter-250-0.25\\n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
@@ -67,7 +67,7 @@ public class EvaluateResults {
                                     mergeDocumentResults(outputPath);
 
                                     String[] cmd = {"perl", "C:/Users/butna/Desktop/dizertatie/WSD-GS/data/SemEval2007/new_scorer/scorer-for-java.pl", outputPath + "/results.txt"};
-                                    // String[] cmd = {"C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\scorer\\scorer-java.exe", outputPath + "/results.txt", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\data\\EnglishAW.test.key"};
+                                    // String[] cmd = {"C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\scorer\\scorer-java.exe", outputPath + "/results.txt", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\EnglishAW.test.key"};
                                     Process p = null;
                                     try {
                                         p = Runtime.getRuntime().exec(cmd);

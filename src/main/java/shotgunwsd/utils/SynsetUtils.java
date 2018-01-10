@@ -203,7 +203,8 @@ public class SynsetUtils {
     public static String computeSynsetID(Synset synset, String word) {
         String senseKey = word + "-" + String.join("-", synset.getSenseKeys());
 
-        if(synset.getType() == SynsetType.ADJECTIVE_SATELLITE) {
+
+        if (synset.getType() == SynsetType.ADJECTIVE_SATELLITE) {
             AdjectiveSatelliteSynset adjSynset = (AdjectiveSatelliteSynset) synset;
             senseKey += "-" + String.join("-", adjSynset.getHeadSynset().getSenseKeys());
         }
