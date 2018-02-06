@@ -32,6 +32,10 @@ public class LeskRelatedness extends SynsetRelatedness {
     public double computeSimilarity(Synset synset1, String word1, Synset synset2, String word2){
         SynsetType pos1 = null, pos2 = null;
 
+        if(synset1 == null || synset2 == null) {
+            return 0d;
+        }
+
         try {
             pos1 = synset1.getType();
             pos2 = synset2.getType();

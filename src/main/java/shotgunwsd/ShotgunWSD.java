@@ -27,6 +27,7 @@ import shotgunwsd.utils.SynsetUtils;
 import shotgunwsd.writers.DatabaseWriter;
 import shotgunwsd.writers.DocumentWriter;
 import shotgunwsd.writers.FileOutputWriter;
+import shotgunwsd.writers.SemEval2015Writer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,6 +112,9 @@ class ShotgunWSD {
             case "dataset-semeval2007":
                 fileParser = new SemEval2007Parser(input);
                 break;
+            case "dataset-semeval2015":
+                fileParser = new SemEval2015Parser(input);
+                break;
             case "dataset-semcor":
                 fileParser = new SemCorParser(input);
                 break;
@@ -126,6 +130,9 @@ class ShotgunWSD {
         switch (outputType) {
             case "dataset":
                 fileWriter = new DatabaseWriter(output);
+                break;
+            case "dataset-semeval2015":
+                fileWriter = new SemEval2015Writer(output);
                 break;
             case "text":
                 fileWriter = new FileOutputWriter(output);
@@ -182,15 +189,15 @@ class ShotgunWSD {
 //                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
 //            }
 
-            if(Automation.backupWordClusters.containsKey(document.getDocID())) {
-                wordCluster = Automation.backupWordClusters.get(document.getDocID());
-            } else {
-                // wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 100, document);
-                wordCluster = MajorityClusterRepresentation.ccomputeWordRepresentations(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, clusterSize, clusterCut, document);
-                Automation.backupWordClusters.put(document.getDocID(), wordCluster);
-            }
+            // if(Automation.backupWordClusters.containsKey(document.getDocID())) {
+            //     wordCluster = Automation.backupWordClusters.get(document.getDocID());
+            // } else {
+            //     // wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 100, document);
+            //     wordCluster = MajorityClusterRepresentation.ccomputeWordRepresentations(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, clusterSize, clusterCut, document);
+            //     Automation.backupWordClusters.put(document.getDocID(), wordCluster);
+            // }
 
-            synsetRelatedness.setWordClusters(wordCluster);
+            // synsetRelatedness.setWordClusters(wordCluster);
 
             if(Automation.backupMaxtrixSimilarity.containsKey(document.getDocID())) {
                 matrixSimilarity = Automation.backupMaxtrixSimilarity.get(document.getDocID());
@@ -200,10 +207,6 @@ class ShotgunWSD {
             }
 
             SynsetUtils.matrixSimilarity = matrixSimilarity;
-
-
-
-
 
             // ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
             ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, matrixSimilarity);
