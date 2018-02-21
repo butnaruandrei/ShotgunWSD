@@ -73,6 +73,10 @@ public class WordUtils {
             }
         }
 
+        if(tmpSynsets.length == 0) {
+            tmpSynsets = wnDatabase.getSynsets(word);
+        }
+
         return tmpSynsets;
     }
 

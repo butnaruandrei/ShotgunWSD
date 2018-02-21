@@ -53,6 +53,7 @@ public class MatrixSimilarity {
     }
 
     private void computeSimilarityMatrix() {
+        System.out.println("[START] Building similarity matrix");
         getAllSynsets();
 
         double[][] sims = new double[wordSynsets.length][wordSynsets.length];
@@ -65,11 +66,16 @@ public class MatrixSimilarity {
             }
         }
 
+        System.out.println("[DONE] Building similarity matrix");
+
+        System.out.println("[START] Normalizing similarity matrix");
         for (int i = 0; i < wordSynsets.length; i++) {
             for (int j = 0; j < wordSynsets.length; j++) {
                 _similarities[i][j] = sims[i][j] / Math.sqrt(sims[i][i] * sims[j][j]);
             }
         }
+        System.out.println("[Done] Normalizing similarity matrix");
+
     }
 
     private void getAllSynsets() {
@@ -103,7 +109,7 @@ public class MatrixSimilarity {
         this.synse2WordId = words.stream().toArray(Integer[]::new);
         this.synsetIDs = synsetIds.stream().toArray(String[]::new);
 
-        System.out.println(wordSynsets.length);
+        System.out.println("Number of synsets: " + wordSynsets.length);
 
         reverseSynsetIDs = new HashMap<>();
         for (int i = 0; i < synsetIDs.length; i++) {

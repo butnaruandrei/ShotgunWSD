@@ -15,7 +15,7 @@ public class MainTest {
                 weType = "Google",
                 wnDirectory = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict2.1";
 
-        KernelRelatedness rk = KernelRelatedness.getInstance(wePath, weType, 40, new CosineDistance());
+        KernelRelatedness rk = KernelRelatedness.getInstance(wePath, weType, 40, 0.75, new CosineDistance());
 
         System.setProperty("wordnet.database.dir", wnDirectory);
         WordNetDatabase wnDatabase = WordNetDatabase.getFileInstance();

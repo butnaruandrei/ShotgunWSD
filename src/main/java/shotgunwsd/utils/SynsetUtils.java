@@ -33,6 +33,25 @@ public class SynsetUtils {
 
         return senseScore;
     }
+
+    public static double computeConfigurationScore(int newWordIndex, String[] synsetIDS, MatrixSimilarity matrixSimilarity, double score) {
+        if(newWordIndex == 0)
+            return configurationOperation.getInitialScore();
+
+        double weight;
+        double senseScore = score;
+
+        for (int i = 0; i < newWordIndex; i++) {
+            weight = weightMethod.weight(synsetIDS.length, i, newWordIndex);
+
+            senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(synsetIDS[i], synsetIDS[newWordIndex]));
+            senseScore = configurationOperation.applyOperation(senseScore, weight * matrixSimilarity.getSimilarity(synsetIDS[newWordIndex], synsetIDS[i]));
+        }
+
+        return senseScore;
+    }
+
+
     public static Synset[] getSynsets(int[] synsetsIndex, Synset[] windowWordsSynsets){
         Synset[] returnSynsets = new Synset[synsetsIndex.length];
 

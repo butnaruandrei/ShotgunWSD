@@ -153,9 +153,9 @@ class ShotgunWSD {
             senseComputation = AverageComputation.getInstance();
 
         DistanceFunction distanceFunction = new EuclidianDistance();
-//        KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, 5000, distanceFunction);
+        KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, clusterSize, clusterCut, distanceFunction);
 
-        WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        // WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
         // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         if(configurationOperationName.equals("add2"))
@@ -181,23 +181,24 @@ class ShotgunWSD {
 
 
         for(ParsedDocument document : documents) {
+            KernelRelatedness.cacheRepresentations = new HashMap<>();
 
-//             if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
-//                synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
-//            } else {
-//                synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
-//                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
-//            }
+             if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
+                synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
+            } else {
+                synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
+                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
+            }
 
-            // if(Automation.backupWordClusters.containsKey(document.getDocID())) {
-            //     wordCluster = Automation.backupWordClusters.get(document.getDocID());
-            // } else {
-            //     // wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 100, document);
-            //     wordCluster = MajorityClusterRepresentation.ccomputeWordRepresentations(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, clusterSize, clusterCut, document);
-            //     Automation.backupWordClusters.put(document.getDocID(), wordCluster);
-            // }
-
-            // synsetRelatedness.setWordClusters(wordCluster);
+//             if(Automation.backupWordClusters.containsKey(document.getDocID())) {
+//                 wordCluster = Automation.backupWordClusters.get(document.getDocID());
+//             } else {
+//                 // wordCluster = ClusterRepresentation.computeCentroids(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, 100, document);
+//                 wordCluster = MajorityClusterRepresentation.ccomputeWordRepresentations(ShotgunWSDRunner.wnDatabase, WordEmbeddingRelatedness.wordVectors, distanceFunction, clusterSize, clusterCut, document);
+//                 Automation.backupWordClusters.put(document.getDocID(), wordCluster);
+//             }
+//
+//             synsetRelatedness.setWordClusters(wordCluster);
 
             if(Automation.backupMaxtrixSimilarity.containsKey(document.getDocID())) {
                 matrixSimilarity = Automation.backupMaxtrixSimilarity.get(document.getDocID());

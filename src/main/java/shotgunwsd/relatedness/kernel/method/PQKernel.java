@@ -90,7 +90,7 @@ public class PQKernel {
             i = j;
         }
 
-        rez = (double)(n0 + n3 - n1 - n2 - (2 * s));
+        rez = 2 * (double)(n0 + n3 - n1 - n2 - (2 * s));
 
         return rez;
     }

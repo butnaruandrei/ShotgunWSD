@@ -26,10 +26,10 @@ public class Automation {
         Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
-        Integer[] cs = {15, 20};
-        Integer[] ks = {1,5,10,15,20};
+        Integer[] cs = {20};
+        Integer[] ks = {1, 5, 10, 15, 20};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
-        // Integer[][] minMaxSynsetCollisions = { {5, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5} };
+        // Integer[][] minMaxSynsetCollisions = { {2, 5} };
         // Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4} };
         // Integer[][] minMaxSynsetCollisions = { {1, 1} };
 //       String[] configurationOperationNames = {"add2", "log", "add"};
@@ -37,8 +37,8 @@ public class Automation {
         String[] configurationOperationNames = {"log"};
         String[] senseComputationMethods = {"avg"};
 
-        Integer[] cluster_sizes = { 50 };
-        Double[]  cluster_cuts  = { 0.75 };
+        Integer[] cluster_sizes = { 5000 };
+        Double[]  cluster_cuts  = { 0.5 };
 
         String[] embeddingIDS = {
                 "H:\\GoogleNews-vectors-negative300.bin",
@@ -54,8 +54,8 @@ public class Automation {
         String[] shotgunArgs = new String[34];
 
         shotgunArgs[14] = "-wn";
-        shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\wn-dict-3.0\\dict";
-        // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict2.1";
+        // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\wn-dict-3.0\\dict";
+        shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict2.1";
         // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7.1\\dict";
         // shotgunArgs[15] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\dict1.7";
         shotgunArgs[16] = "-weType";
@@ -64,17 +64,18 @@ public class Automation {
         shotgunArgs[19] = "H:\\GoogleNews-vectors-negative300.bin";
         // shotgunArgs[19] = "H:\\Senseval3-GN-CC840-vectors600.txt";
         shotgunArgs[20] = "-input";
-        shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\data\\semeval-2015-task-13-en.xml";
-        // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval2007\\test\\eng-coarse-all-words.xml";
+        // shotgunArgs[21] = "F:\\Research\\ShotgunWSD-jurnal\\WSD_Unified_Evaluation_Datasets\\semeval2007\\semeval2007.data.xml";
+        shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval2007\\test\\eng-coarse-all-words.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\dataset.semcor.lexsn.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\data\\dataset.semcor.lexsn.xml";
         shotgunArgs[22] = "-output";
         shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\SemEval2007\\GN";
         shotgunArgs[24] = "-inputType";
-        shotgunArgs[25] = "dataset-semeval2015";
-        // shotgunArgs[25] = "dataset-semcor";
+        // shotgunArgs[25] = "dataset-semeval2015";
+        shotgunArgs[25] = "dataset-semeval2007";
         shotgunArgs[26] = "-outputType";
-        shotgunArgs[27] = "dataset-semeval2015";
+        // shotgunArgs[27] = "dataset-semeval2015";
+        shotgunArgs[27] = "dataset";
 
         for(int cut = 0; cut < cluster_cuts.length; cut++) {
             shotgunArgs[30] = "-clusterCut";
@@ -120,7 +121,7 @@ public class Automation {
                                         shotgunArgs[7] = Integer.toString(minMaxSynsetCollisions[l][0]);
                                         shotgunArgs[9] = Integer.toString(minMaxSynsetCollisions[l][1]);
 
-                                        folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2015\\GN\\matrix-optim\\cluster-filter-" + Integer.toString(cluster_sizes[cluster_size]) + "-" + Double.toString(cluster_cuts[cut]);
+                                        folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\kernel\\semeval2007\\pq\\cluster-filter-" + cluster_sizes[cluster_size] + "-" + cluster_cuts[cut];
                                         // folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\SemEval2015\\GN\\matrix-optim";
                                         // create folder if not exists
                                         File directory = new File(folderPath);

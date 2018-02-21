@@ -77,7 +77,8 @@ public class ShotgunWSDLocal {
 //        Object[] synsetRepresentations = synsetRelatedness.computeSynsetRepresentations(windowWordsSynsets, windowWords, synset2WordIndex);
 //        computeWordPairSynsetRelatedness(synsetRepresentations);
 
-        generateSynsetCombinations();
+        // generateSynsetCombinations();
+        generateSynsetCombinationsOptimized();
     }
 
     /**
@@ -170,6 +171,19 @@ public class ShotgunWSDLocal {
         }
     }
 
+    private void generateSynsetCombinationsOptimized(){
+        int wordIndex = 0;
+
+        generateSynsetCombinations(wordIndex, new int[windowWords.length], SynsetUtils.configurationOperation.getInitialScore());
+
+        if(windowSolutions.size() == 0){
+            windowSolutions = null;
+        } else {
+            for(WindowConfiguration windowConfiguration: windowSolutions)
+                windowConfiguration.setGlobalIDS(offset, synset2WordIndex, windowWordsSynsetStart);
+        }
+    }
+
     // TODO write docs
     private void generateSynsetCombinations(int wordIndex, int[] synsets){
         double score;
@@ -191,20 +205,43 @@ public class ShotgunWSDLocal {
                 // score = SynsetUtils.computeConfigurationScore(synsets, offset, matrixSimilarity);
                 // score = SynsetUtils.computeConfigurationScore(synsets, synsetPairScores);
 
-                 size = windowSolutions.size();
-                 if(size >= this.numberConfigs) {
-                     if(score >= windowSolutions.getLast().getScore()){
-                         windowSolutions.addLast(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
-                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
-                         windowSolutions.pollFirst();
-                      }
-                 } else {
-                     windowSolutions.push(new WindowConfiguration(synsets.clone(), windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
+                appendConfigurationToSolutions(score, synsets.clone(), configurationSynsetIDS);
+            }
+        }
+    }
 
-                     if(size == this.numberConfigs - 1) {
-                         windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
-                     }
-                 }
+    private void appendConfigurationToSolutions(double score, int[] synsets, String[] configurationSynsetIDS){
+        Synset[] configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
+        int size = windowSolutions.size();
+        if(size >= this.numberConfigs) {
+            if(score >= windowSolutions.getLast().getScore()){
+                windowSolutions.addLast(new WindowConfiguration(synsets, windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
+                windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+                windowSolutions.pollFirst();
+            }
+        } else {
+            windowSolutions.push(new WindowConfiguration(synsets, windowWords, windowWordsPOS, configurationSynsets, configurationSynsetIDS, score));
+
+            if(size == this.numberConfigs - 1) {
+                windowSolutions.sort(WindowConfiguration.windowConfigurationComparator);
+            }
+        }
+    }
+
+    private void generateSynsetCombinations(int wordIndex, int[] synsets, double score) {
+        double newScore;
+        String[] configurationSynsetIDS;
+
+        for (int i = windowWordsSynsetStart[wordIndex]; i < windowWordsSynsetStart[wordIndex] + windowWordsSynsetLength[wordIndex]; i++) {
+            synsets[wordIndex] = i;
+
+            configurationSynsetIDS = SynsetUtils.getSynsetIDs(synsets, windowSynsetIDs);
+            newScore = SynsetUtils.computeConfigurationScore(wordIndex, configurationSynsetIDS, matrixSimilarity, score);
+
+            if(wordIndex < windowWords.length - 1) {
+                generateSynsetCombinations(wordIndex + 1, synsets, newScore);
+            } else {
+                appendConfigurationToSolutions(newScore, synsets.clone(), configurationSynsetIDS);
             }
         }
     }

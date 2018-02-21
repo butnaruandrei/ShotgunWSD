@@ -14,17 +14,19 @@ import shotgunwsd.relatedness.kernel.kmeans.DistanceFunction;
 import shotgunwsd.relatedness.kernel.kmeans.KMeans;
 import shotgunwsd.utils.WordUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Created by Butnaru Andrei-Madalin.
  */
 public class ClusterRepresentation {
-    public static HashMap<String, Integer> computeClusters(WordNetDatabase wnDatabase, WordVectors wordVectors, DistanceFunction distanceFunction, int numberOfClusters, ParsedDocument document) {
+    public static HashMap<String, Integer> computeClusters(WordNetDatabase wnDatabase, WordVectors wordVectors, DistanceFunction distanceFunction, int numberOfClusters, double wordPercentage, ParsedDocument document) {
         ArrayList<String> wordBag = new ArrayList<>();
         Synset[] tmpSynsets;
+        int[] clusterSize = new int[numberOfClusters];
+        for (int i = 0; i < numberOfClusters; i++) {
+            clusterSize[i] = 0;
+        }
 
         for(String word : document.getWords()) {
             tmpSynsets = WordUtils.getSynsetsFromWord(wnDatabase, word, null);
@@ -46,13 +48,25 @@ public class ClusterRepresentation {
         int[] assignments = buildClusters(wordEmbeddings, distanceFunction, words, numberOfClusters);
         System.out.println("{DONE] Building clusters");
 
+        for (int assignment : assignments) {
+            clusterSize[assignment]++;
+        }
+
+        double mean = 0d;
+        for (int aClusterSize : clusterSize) {
+            mean += aClusterSize;
+        }
+
+        mean /= numberOfClusters;
+
         HashMap<String, Integer> mappings = new HashMap<>();
         for (int i = 0; i < assignments.length; i++) {
-            mappings.put(words[i], assignments[i]);
+            if(clusterSize[assignments[i]] >= mean * wordPercentage) {
+                mappings.put(words[i], assignments[i]);
+            }
         }
 
         // displayClusters(assignments, words, numberOfClusters);
-
         return mappings;
     }
 
