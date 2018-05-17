@@ -8,6 +8,7 @@ import shotgunwsd.configuration.operations.AddOperation;
 import shotgunwsd.configuration.operations.LogOperation;
 import shotgunwsd.configuration.operations.SumSquaredOperation;
 import shotgunwsd.configuration.weights.BaseWeight;
+import shotgunwsd.configuration.weights.DefaultWeight;
 import shotgunwsd.configuration.weights.ExponentialWeight;
 import edu.smu.tspell.wordnet.Synset;
 import shotgunwsd.parsers.*;
@@ -24,10 +25,7 @@ import shotgunwsd.relatedness.kernel.kmeans.EuclidianDistance;
 import shotgunwsd.relatedness.lesk.LeskRelatedness;
 import shotgunwsd.utils.MatrixSimilarity;
 import shotgunwsd.utils.SynsetUtils;
-import shotgunwsd.writers.DatabaseWriter;
-import shotgunwsd.writers.DocumentWriter;
-import shotgunwsd.writers.FileOutputWriter;
-import shotgunwsd.writers.SemEval2015Writer;
+import shotgunwsd.writers.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +116,9 @@ class ShotgunWSD {
             case "dataset-semcor":
                 fileParser = new SemCorParser(input);
                 break;
+            case "dataset-unified":
+                fileParser = new UnifiedDataParser(input);
+                break;
             case "text":
                 fileParser = new FileParser(input);
                 FileParser.wnDatabase = ShotgunWSDRunner.wnDatabase;
@@ -133,6 +134,9 @@ class ShotgunWSD {
                 break;
             case "dataset-semeval2015":
                 fileWriter = new SemEval2015Writer(output);
+                break;
+            case "dataset-unified":
+                fileWriter = new UnifiedDataWriter(output);
                 break;
             case "text":
                 fileWriter = new FileOutputWriter(output);
@@ -152,10 +156,10 @@ class ShotgunWSD {
         else if(senseComputationMethod.equals("avg"))
             senseComputation = AverageComputation.getInstance();
 
-        DistanceFunction distanceFunction = new EuclidianDistance();
-        KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, clusterSize, clusterCut, distanceFunction);
+        // DistanceFunction distanceFunction = new EuclidianDistance();
+        // KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, clusterSize, clusterCut, distanceFunction);
 
-        // WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
         // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         if(configurationOperationName.equals("add2"))
@@ -183,12 +187,12 @@ class ShotgunWSD {
         for(ParsedDocument document : documents) {
             KernelRelatedness.cacheRepresentations = new HashMap<>();
 
-             if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
-                synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
-            } else {
-                synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
-                Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
-            }
+            // if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
+            //     synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
+            // } else {
+            //     synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
+            //     Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
+            // }
 
 //             if(Automation.backupWordClusters.containsKey(document.getDocID())) {
 //                 wordCluster = Automation.backupWordClusters.get(document.getDocID());

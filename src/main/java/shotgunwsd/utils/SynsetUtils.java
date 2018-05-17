@@ -210,7 +210,7 @@ public class SynsetUtils {
             return senseKey;
 
         for(String tmpSenseKey : senseKeys) {
-            if(tmpSenseKey.contains(lemma.toLowerCase())) {
+            if(tmpSenseKey.contains(lemma.toLowerCase()) || tmpSenseKey.contains(lemma.toLowerCase().replace(" ", "_"))) {
                 senseKey = tmpSenseKey;
                 break;
             }

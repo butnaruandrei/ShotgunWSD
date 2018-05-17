@@ -62,6 +62,8 @@ public class MatrixSimilarity {
         for (int i = 0; i < wordSynsets.length; i++) {
             for (int j = i; j < wordSynsets.length; j++) {
                 sim = synsetRelatedness.computeSimilarity(wordSynsets[i], _document.getWord(synse2WordId[i]), wordSynsets[j], _document.getWord(synse2WordId[j]));
+                if(Double.isNaN(sim))
+                    sim = 0d;
                 sims[i][j] = sims[j][i] = sim;
             }
         }
@@ -72,6 +74,8 @@ public class MatrixSimilarity {
         for (int i = 0; i < wordSynsets.length; i++) {
             for (int j = 0; j < wordSynsets.length; j++) {
                 _similarities[i][j] = sims[i][j] / Math.sqrt(sims[i][i] * sims[j][j]);
+                if(Double.isNaN(_similarities[i][j]))
+                    _similarities[i][j] = 0d;
             }
         }
         System.out.println("[Done] Normalizing similarity matrix");

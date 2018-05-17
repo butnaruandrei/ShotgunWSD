@@ -12,15 +12,12 @@ import java.util.Scanner;
  */
 public class EvaluateResults {
     public static void main(String[] args) {
-        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}};
+        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
-        Integer[] cs = {20};
+        Integer[] cs = {1, 5, 10, 15, 20};
         Integer[] ks = {1, 5, 10, 15, 20};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
-        // Integer[][] minMaxSynsetCollisions = { {5, 5}, {1, 5}, {2, 5}, {3, 5}, {4, 5} };
-        // Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4} };
-        // Integer[][] minMaxSynsetCollisions = { {1, 1} };
 //       String[] configurationOperationNames = {"add2", "log", "add"};
 //        String[] senseComputationMethods = {"avg", "geo"};
         String[] configurationOperationNames = {"log"};
@@ -51,23 +48,24 @@ public class EvaluateResults {
                             for (int i = 0; i < ns.length; i++) {
                                 if(i == 0)
                                     System.out.print(minMaxSynsetCollisions[l][0] + "-" + minMaxSynsetCollisions[l][1] + "\t");
-                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\weighted\\kernel\\semeval2007\\pq\\cluster-filter-2500-0.5\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL\\fixed-n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
                                         "-masc-" + minMaxSynsetCollisions[l][1] +
                                         "-conf-" + configurationOperationNames[m] +
                                         "-comp-" + senseComputationMethods[n];
-
+                                // System.out.println(outputPath);
                                 File outputFolder = new File(outputPath);
 
                                 if(outputFolder.exists()) {
                                     // System.out.println(outputFolder);
                                     mergeDocumentResults(outputPath);
 
-                                    String[] cmd = {"perl", "C:/Users/butna/Desktop/dizertatie/WSD-GS/data/SemEval2007/new_scorer/scorer-for-java.pl", outputPath + "/results.txt"};
+                                    // String[] cmd = {"perl", "C:/Users/butna/Desktop/dizertatie/WSD-GS/data/SemEval2007/new_scorer/scorer-for-java.pl", outputPath + "/results.txt"};
                                     // String[] cmd = {"C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\scorer\\scorer-java.exe", outputPath + "/results.txt", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\EnglishAW.test.key"};
-                                     // String[] cmd = {"java", "-cp", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\scorer", "Scorer", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\keys\\gold_keys\\EN\\semeval-2015-task-13-en-WSD.key",  outputPath + "/results.txt"};
+                                    // String[] cmd = {"java", "-cp", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\scorer", "Scorer", "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\keys\\gold_keys\\EN\\semeval-2015-task-13-en-WSD.key",  outputPath + "/results.txt"};
+                                    String[] cmd = {"java", "-cp", "F:\\Research\\ShotgunWSD-jurnal\\WSD_Unified_Evaluation_Datasets", "Scorer", "F:\\Research\\ShotgunWSD-jurnal\\WSD_Unified_Evaluation_Datasets\\ALL\\ALL.gold.key.txt",  outputPath + "/results.txt"};
                                     Process p = null;
                                     try {
                                         p = Runtime.getRuntime().exec(cmd);

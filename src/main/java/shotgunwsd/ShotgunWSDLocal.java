@@ -197,7 +197,7 @@ public class ShotgunWSDLocal {
             if(wordIndex < windowWords.length - 1) {
                 generateSynsetCombinations(wordIndex + 1, synsets);
             } else {
-                configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
+                // configurationSynsets = SynsetUtils.getSynsets(synsets, windowWordsSynsets);
                 configurationSynsetIDS = SynsetUtils.getSynsetIDs(synsets, windowSynsetIDs);
 
                 score = SynsetUtils.computeConfigurationScore(configurationSynsetIDS, matrixSimilarity);
