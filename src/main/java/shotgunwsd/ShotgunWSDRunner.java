@@ -403,7 +403,7 @@ public class ShotgunWSDRunner {
         Synset synset;
 
 
-        tmpSynsets = WordUtils.getSynsetsFromWord(wnDatabase, document.getWord(wordIndex), POSUtils.asSynsetType(document.getWordPos(wordIndex)));
+        tmpSynsets = WordUtils.extractSynsets(wnDatabase, document.getWord(wordIndex), POSUtils.asSynsetType(document.getWordPos(wordIndex)));
 
         if(tmpSynsets.length == 0) {
             synset = null;

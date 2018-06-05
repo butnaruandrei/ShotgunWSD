@@ -99,7 +99,7 @@ public class SenseEmbedding {
         return senseEmbedding;
     }
 
-    private static String[] getSenseBag(Synset synset, String word) {
+    public static String[] getSenseBag(Synset synset, String word) {
         if(synset == null)
             return new String[0];
 

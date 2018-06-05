@@ -27,8 +27,7 @@ import shotgunwsd.utils.MatrixSimilarity;
 import shotgunwsd.utils.SynsetUtils;
 import shotgunwsd.writers.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 class ShotgunWSD {
     @Parameter(names = "-min_n", description = "Min length of the context windows", required = true)
@@ -156,7 +155,7 @@ class ShotgunWSD {
         else if(senseComputationMethod.equals("avg"))
             senseComputation = AverageComputation.getInstance();
 
-        // DistanceFunction distanceFunction = new EuclidianDistance();
+         DistanceFunction distanceFunction = new EuclidianDistance();
         // KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, clusterSize, clusterCut, distanceFunction);
 
         WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
@@ -187,12 +186,12 @@ class ShotgunWSD {
         for(ParsedDocument document : documents) {
             KernelRelatedness.cacheRepresentations = new HashMap<>();
 
-            // if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
-            //     synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
-            // } else {
-            //     synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
-            //     Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
-            // }
+//             if(Automation.backupWordCentroids.containsKey(document.getDocID())) {
+//                 synsetRelatedness.setWordClusters(Automation.backupWordCentroids.get(document.getDocID()));
+//             } else {
+//                 synsetRelatedness.computeClusters(ShotgunWSDRunner.wnDatabase, document);
+//                 Automation.backupWordCentroids.put(document.getDocID(), KernelRelatedness.wordClusters);
+//             }
 
 //             if(Automation.backupWordClusters.containsKey(document.getDocID())) {
 //                 wordCluster = Automation.backupWordClusters.get(document.getDocID());
@@ -202,7 +201,7 @@ class ShotgunWSD {
 //                 Automation.backupWordClusters.put(document.getDocID(), wordCluster);
 //             }
 //
-//             synsetRelatedness.setWordClusters(wordCluster);
+//            synsetRelatedness.setWordClusters(wordCluster);
 
             if(Automation.backupMaxtrixSimilarity.containsKey(document.getDocID())) {
                 matrixSimilarity = Automation.backupMaxtrixSimilarity.get(document.getDocID());
@@ -212,6 +211,14 @@ class ShotgunWSD {
             }
 
             SynsetUtils.matrixSimilarity = matrixSimilarity;
+// -------------------- DEBUG --------------------------------
+//            HashMap<Synset, Double> scores = new HashMap<>();
+//            for (int i = 0; i < SynsetUtils.matrixSimilarity.size(); i++) {
+//                scores.put(matrixSimilarity.wordSynsets[i], SynsetUtils.matrixSimilarity.getSimilarity(0, i));
+//            }
+//            Map<Synset, Double> sortedMap = sortByComparator(scores, false);
+//            System.out.printf("ok");
+// ------------------------------------------------------------
 
             // ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, synsetRelatedness);
             ShotgunWSDRunner wsdRunner = new ShotgunWSDRunner(document, min_n, max_n, c, k, minSynsetCollisions, maxSynsetCollisions, matrixSimilarity);
@@ -222,6 +229,31 @@ class ShotgunWSD {
         System.out.println("[STOP]" + (System.currentTimeMillis() - t));
     }
 
+    private static Map<Synset, Double> sortByComparator(HashMap<Synset, Double> unsortMap, final boolean order){
 
+        List<Map.Entry<Synset, Double>> list = new LinkedList<>(unsortMap.entrySet());
+
+        // Sorting the list based on values
+        Collections.sort(list, (o1, o2) -> {
+            if (order)
+            {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+            else
+            {
+                return o2.getValue().compareTo(o1.getValue());
+
+            }
+        });
+
+        // Maintaining insertion order with the help of LinkedList
+        Map<Synset, Double> sortedMap = new LinkedHashMap<>();
+            for (Map.Entry<Synset, Double> entry : list)
+        {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
+    }
 
 }

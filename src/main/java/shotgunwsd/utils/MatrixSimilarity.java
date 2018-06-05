@@ -19,7 +19,7 @@ public class MatrixSimilarity {
     private ParsedDocument _document;
     private double[][] _similarities;
 
-    private Synset[] wordSynsets;
+    public Synset[] wordSynsets;
     private Integer[] synse2WordId;
     private String[] synsetIDs;
     private HashMap<String, Integer> reverseSynsetIDs;
@@ -33,6 +33,10 @@ public class MatrixSimilarity {
         this.synsetRelatedness = synsetRelatedness;
 
         computeSimilarityMatrix();
+    }
+
+    public double getSimilarity(int i, int j){
+        return _similarities[i][j];
     }
 
     public double getSimilarity(String synsetID1, String synsetID2) {
@@ -119,5 +123,9 @@ public class MatrixSimilarity {
         for (int i = 0; i < synsetIDs.length; i++) {
             reverseSynsetIDs.put(synsetIDs[i], i);
         }
+    }
+
+    public int size() {
+        return _similarities.length;
     }
 }

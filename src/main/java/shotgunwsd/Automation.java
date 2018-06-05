@@ -23,10 +23,10 @@ public class Automation {
 
     public static void main(String[] args) {
 
-        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}};
+        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
-        Integer[] cs = {1, 5, 10, 15, 20};
+        Integer[] cs = {5, 10, 15, 20};
         Integer[] ks = {1, 5, 10, 15, 20};
         Integer[][] minMaxSynsetCollisions = { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 4}, {3, 5}, {4, 5} };
         // Integer[][] minMaxSynsetCollisions = { {2, 5} };
@@ -37,8 +37,8 @@ public class Automation {
         String[] configurationOperationNames = {"log"};
         String[] senseComputationMethods = {"avg"};
 
-        Integer[] cluster_sizes = { 5000 };
-        Double[]  cluster_cuts  = { 0.5 };
+        Integer[] cluster_sizes = { 750 };
+        Double[]  cluster_cuts  = { 0.75 };
 
         String[] embeddingIDS = {
                 "H:\\GoogleNews-vectors-negative300.bin",
@@ -64,13 +64,13 @@ public class Automation {
         shotgunArgs[19] = "H:\\GoogleNews-vectors-negative300.bin";
         // shotgunArgs[19] = "H:\\Senseval3-GN-CC840-vectors600.txt";
         shotgunArgs[20] = "-input";
-        shotgunArgs[21] = "F:\\Research\\ShotgunWSD-jurnal\\WSD_Unified_Evaluation_Datasets\\ALL\\ALL.data.xml";
+        shotgunArgs[21] = "F:\\Research\\ShotgunWSD-jurnal\\WSD_Unified_Evaluation_Datasets\\semeval2007\\semeval2007.data.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval2007\\test\\eng-coarse-all-words.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\SemEval-2015-task-13-v1.0\\data\\semeval-2015-task-13-en.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\dataset.semcor.lexsn.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\data\\dataset.semcor.lexsn.xml";
         shotgunArgs[22] = "-output";
-        shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL";
+        shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007";
         shotgunArgs[24] = "-inputType";
         shotgunArgs[25] = "dataset-unified";
         shotgunArgs[26] = "-outputType";
@@ -121,8 +121,8 @@ public class Automation {
                                         shotgunArgs[7] = Integer.toString(minMaxSynsetCollisions[l][0]);
                                         shotgunArgs[9] = Integer.toString(minMaxSynsetCollisions[l][1]);
 
-                                        // folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007\\cluster-filter-" + cluster_sizes[cluster_size] + "-" + cluster_cuts[cut];
-                                        folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL";
+                                        // folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL\\cluster-filter-" + cluster_sizes[cluster_size] + "-" + cluster_cuts[cut];
+                                        folderPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007-v2";
                                         // create folder if not exists
                                         File directory = new File(folderPath);
                                         if (! directory.exists()) {
@@ -130,7 +130,7 @@ public class Automation {
                                         }
 
                                         // overwrite folder path
-                                        shotgunArgs[23] = folderPath + "\\fixed-n-" + ns[i][0] + "-" + ns[i][1] +
+                                        shotgunArgs[23] = folderPath + "\\n-" + ns[i][0] + "-" + ns[i][1] +
                                                 "-k-" + ks[j] +
                                                 "-c-" + cs[k] +
                                                 "-misc-" + minMaxSynsetCollisions[l][0] +

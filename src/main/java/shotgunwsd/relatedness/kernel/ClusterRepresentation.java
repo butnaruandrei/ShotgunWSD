@@ -29,7 +29,7 @@ public class ClusterRepresentation {
         }
 
         for(String word : document.getWords()) {
-            tmpSynsets = WordUtils.getSynsetsFromWord(wnDatabase, word, null);
+            tmpSynsets = WordUtils.extractSynsets(wnDatabase, word, null);
 
             for(Synset synset : tmpSynsets) {
                 wordBag.addAll(Arrays.asList(getSenseBag(synset, word)));
@@ -75,7 +75,7 @@ public class ClusterRepresentation {
         Synset[] tmpSynsets;
 
         for(String word : document.getWords()) {
-            tmpSynsets = WordUtils.getSynsetsFromWord(wnDatabase, word, null);
+            tmpSynsets = WordUtils.extractSynsets(wnDatabase, word, null);
 
             for(Synset synset : tmpSynsets) {
                 wordBag.addAll(Arrays.asList(getSenseBag(synset, word)));
