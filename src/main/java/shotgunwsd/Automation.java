@@ -70,7 +70,7 @@ public class Automation {
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval2\\data\\dataset.semcor.lexsn.xml";
         // shotgunArgs[21] = "C:\\Users\\butna\\Desktop\\dizertatie\\WSD-GS\\data\\Senseval3\\data\\dataset.semcor.lexsn.xml";
         shotgunArgs[22] = "-output";
-        shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007";
+        shotgunArgs[23] = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL";
         shotgunArgs[24] = "-inputType";
         shotgunArgs[25] = "dataset-unified";
         shotgunArgs[26] = "-outputType";
@@ -130,7 +130,7 @@ public class Automation {
                                         }
 
                                         // overwrite folder path
-                                        shotgunArgs[23] = folderPath + "\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                        shotgunArgs[23] = folderPath + "\\t-remove-null-words-log-euclidian-cosine-n-" + ns[i][0] + "-" + ns[i][1] +
                                                 "-k-" + ks[j] +
                                                 "-c-" + cs[k] +
                                                 "-misc-" + minMaxSynsetCollisions[l][0] +

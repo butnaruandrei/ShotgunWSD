@@ -1,7 +1,7 @@
 package shotgunwsd.relatedness.lesk.similarities;
 
 import edu.smu.tspell.wordnet.Synset;
-import org.tartarus.snowball.ext.PorterStemmer;
+import org.tartarus.snowball.ext.porterStemmer;
 import shotgunwsd.relatedness.SynsetRelatedness;
 import shotgunwsd.utils.SynsetUtils;
 
@@ -29,7 +29,7 @@ public class SynsetSimilarity {
 
         int i,j,k;
 
-        PorterStemmer stemmer = new PorterStemmer();
+        porterStemmer stemmer = new porterStemmer();
         String[] glossWords1 = gloss1.split("[^a-zA-Z\']+");
         String[] glossWords2 = gloss2.split("[^a-zA-Z\']+");
 

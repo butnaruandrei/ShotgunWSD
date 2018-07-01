@@ -5,6 +5,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import shotgunwsd.ShotgunWSDRunner;
+import shotgunwsd.utils.POSUtils;
+import shotgunwsd.utils.SynsetUtils;
+import shotgunwsd.utils.WordUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -91,7 +95,7 @@ public class UnifiedDataParser extends DocumentParser {
 
                         if("wf".equals(instance.getNodeName())) {
                             Element inst = (Element) instance;
-                            if(acceptPOS(inst.getAttribute("pos"))){
+                            if(acceptPOS(inst.getAttribute("pos")) && WordUtils.inWordNet(ShotgunWSDRunner.wnDatabase, inst.getAttribute("lemma").replace("_", " ").toLowerCase(), POSUtils.asSynsetType(fixPOS(inst.getAttribute("pos"))))){
                                 docWords.add(inst.getAttribute("lemma").replace("_", " ").toLowerCase());
                                 docWordsPOS.add(fixPOS(inst.getAttribute("pos")));
                                 docWordsLemma.add(inst.getAttribute("lemma").replace("_", " ").toLowerCase());

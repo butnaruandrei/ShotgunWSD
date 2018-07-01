@@ -8,6 +8,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import shotgunwsd.relatedness.SynsetRelatedness;
 import shotgunwsd.relatedness.embeddings.sense.computations.SenseComputation;
+import shotgunwsd.relatedness.kernel.kmeans.EuclidianDistance;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
     private HashMap<String, Double[]> wordClusters = null;
     static WordEmbeddingRelatedness instance = null;
     static SenseComputation senseComputation;
+    static String similarityMeasure = "cosine";
 
     protected WordEmbeddingRelatedness(){}
     public static WordEmbeddingRelatedness getInstance(String wePath, String weType, SenseComputation senseComputation) {
@@ -34,6 +36,14 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
         }
 
         WordEmbeddingRelatedness.senseComputation = senseComputation;
+        WordEmbeddingRelatedness.similarityMeasure = "cosine";
+
+        return instance;
+    }
+
+    public static WordEmbeddingRelatedness getInstance(String wePath, String weType, SenseComputation senseComputation, String similarityMeasure) {
+        WordEmbeddingRelatedness instance = getInstance(wePath, weType, senseComputation);
+        WordEmbeddingRelatedness.similarityMeasure = similarityMeasure;
 
         return instance;
     }
@@ -55,7 +65,34 @@ public class WordEmbeddingRelatedness extends SynsetRelatedness {
     public double computeSimilarity(Object[] synsetRepresentation, String[] windowWords, int[] synset2WordIndex, int k, int j){
         INDArray[] windowWordsSenseEmbeddings = (INDArray[])synsetRepresentation;
 
-        double score = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+        double score = 0d, euclidian, cosine;
+        if(WordEmbeddingRelatedness.similarityMeasure.equals("cosine"))
+            score = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+        else if(WordEmbeddingRelatedness.similarityMeasure.equals("euclidian")) {
+            score = EuclidianDistance.distance(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+            score = 1 / (1 + score);
+        } else if(WordEmbeddingRelatedness.similarityMeasure.equals("euclidian-dot-cosine")){
+            euclidian = EuclidianDistance.distance(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+            euclidian = 1 / (1 + euclidian);
+
+            cosine = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+
+            score = cosine * euclidian;
+        } else if (WordEmbeddingRelatedness.similarityMeasure.equals("pyt-euclidian-cosine")) {
+            euclidian = EuclidianDistance.distance(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+            euclidian = 1 / (1 + euclidian);
+
+            cosine = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+
+            score = Math.sqrt(cosine * cosine + euclidian * euclidian);
+        } else if (WordEmbeddingRelatedness.similarityMeasure.equals("log-euclidian-cosine")) {
+            euclidian = EuclidianDistance.distance(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+            euclidian = 1 / (1 + euclidian);
+
+            cosine = Transforms.cosineSim(windowWordsSenseEmbeddings[k], windowWordsSenseEmbeddings[j]);
+
+            score = Math.log((1 + cosine) * ( 1 + euclidian));
+        }
 
         if(Double.isNaN(score))
             score = 0;

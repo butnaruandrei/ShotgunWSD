@@ -158,7 +158,7 @@ class ShotgunWSD {
          DistanceFunction distanceFunction = new EuclidianDistance();
         // KernelRelatedness synsetRelatedness = KernelRelatedness.getInstance(wePath, weType, clusterSize, clusterCut, distanceFunction);
 
-        WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation);
+        WordEmbeddingRelatedness synsetRelatedness = WordEmbeddingRelatedness.getInstance(wePath, weType, senseComputation, "euclidian");
         // SynsetRelatedness synsetRelatedness = LeskRelatedness.getInstance();
 
         if(configurationOperationName.equals("add2"))

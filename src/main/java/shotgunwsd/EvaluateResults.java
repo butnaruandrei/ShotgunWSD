@@ -12,7 +12,7 @@ import java.util.Scanner;
  */
 public class EvaluateResults {
     public static void main(String[] args) {
-        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}, {7, 7}};
+        Integer[][] ns = {{4, 4}, {5, 5}, {6, 6}};
         // Integer[][] ns = {{4, 5}, {4, 6}, {4, 7}, {5, 6}, {5, 7}, {6, 7}};
         // Integer[][] ns = {{4, 8}, {5, 8}, {6, 8}, {7, 8}};
         Integer[] cs = {5, 10, 15, 20};
@@ -49,7 +49,7 @@ public class EvaluateResults {
                                 if(i == 0)
                                     System.out.print(minMaxSynsetCollisions[l][0] + "-" + minMaxSynsetCollisions[l][1] + "\t");
                                 // outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\ALL\\cluster-filter-750-0.75\\n-" + ns[i][0] + "-" + ns[i][1] +
-                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007-v2\\n-" + ns[i][0] + "-" + ns[i][1] +
+                                outputPath = "F:\\Research\\ShotgunWSD-jurnal\\results\\unified\\semeval2007-v2\\t-remove-null-words-log-euclidian-cosine-n-" + ns[i][0] + "-" + ns[i][1] +
                                         "-k-" + ks[j] +
                                         "-c-" + cs[k] +
                                         "-misc-" + minMaxSynsetCollisions[l][0] +
